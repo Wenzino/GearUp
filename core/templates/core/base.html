@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}Karma Shop{% endblock %}</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{% static 'core/css/linearicons.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/owl.carousel.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/nouislider.min.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/main.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body {% block body_class %}{% endblock %}>
+    {% include 'core/components/header.html' %}
+
+    {% block content %}{% endblock %}
+
+    {% include 'core/components/footer.html' %}
+
+    <!-- Scripts -->
+    <script src="{% static 'core/js/vendor/jquery-2.2.4.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="{% static 'core/js/vendor/bootstrap.min.js' %}"></script>
+    <script src="{% static 'core/js/jquery.ajaxchimp.min.js' %}"></script>
+    <script src="{% static 'core/js/jquery.nice-select.min.js' %}"></script>
+    <script src="{% static 'core/js/jquery.sticky.js' %}"></script>
+    <script src="{% static 'core/js/nouislider.min.js' %}"></script>
+    <script src="{% static 'core/js/jquery.magnific-popup.min.js' %}"></script>
+    <script src="{% static 'core/js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'core/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

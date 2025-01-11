@@ -1,0 +1,15 @@
+<div class="collapse navbar-collapse offset" id="navbarSupportedContent">
+    <ul class="nav navbar-nav menu_nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="{% url 'core:index' %}">Home</a></li>
+        <li class="nav-item submenu dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button">Shop</a>
+            <ul class="dropdown-menu">
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:category' %}">Shop Category</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:checkout' %}">Product Checkout</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:cart' %}">Shopping Cart</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:confirmation' %}">Confirmation</a></li>
+            </ul>
+        </li>
+        <!-- Outros itens do menu -->
+    </ul>
+</div>
