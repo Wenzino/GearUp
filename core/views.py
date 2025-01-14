@@ -1,7 +1,10 @@
 from django.shortcuts import render
 
+def test_view(request):
+    return render(request, 'test.html')
+
 def index(request):
-    return render(request, 'core/index.html')
+    return render(request, 'core/base.html')
 
 def cart(request):
     return render(request, 'core/cart.html')

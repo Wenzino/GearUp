@@ -13,4 +13,5 @@ urlpatterns = [
     path('elements/', views.elements, name='elements'),
     path('login/', views.login_view, name='login'),
     path('tracking/', views.tracking, name='tracking'),
+    path('test/', views.test_view, name='test'),
 ] 
