@@ -1,0 +1,80 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Registrar{% endblock %}
+
+{% block content %}
+<!-- Banner Area -->
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Criar Conta</h1>
+                <nav class="d-flex align-items-center">
+                    <a href="{% url 'core:index' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+                    <a href="#">Registrar</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Área de Registro -->
+<section class="login_box_area section_gap">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="login_box_img">
+                    <img class="img-fluid" src="{% static 'core/img/login.jpg' %}" alt="">
+                    <div class="hover">
+                        <h4>Já tem uma conta?</h4>
+                        <p>Faça login para acessar todos os recursos da sua conta</p>
+                        <a class="primary-btn" href="{% url 'core:login' %}">Login</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="login_form_inner register_form_inner">
+                    <h3>Criar nova conta</h3>
+                    <form class="row login_form" method="post" id="registerForm">
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="col-md-12 alert alert-{{ message.tags }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="col-md-12 form-group">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Nome completo" required>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Nome de usuário" required>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="password" class="form-control" id="password1" name="password1" placeholder="Senha" required>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirmar senha" required>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <div class="creat_account">
+                                <input type="checkbox" id="terms" name="terms" required>
+                                <label for="terms">Li e aceito os termos e condições</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <button type="submit" value="submit" class="primary-btn">Registrar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Categorias{% endblock %}
+
+{% block content %}
+<!-- Banner Area -->
+<section class="banner-area organic-breadcrumb">
+	<div class="container">
+		<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+			<div class="col-first">
+				<h1>Categorias</h1>
+				<nav class="d-flex align-items-center">
+					<a href="{% url 'core:index' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+					<a href="#">Categorias</a>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Conteúdo das Categorias -->
+<section class="category-area">
+	<!-- Seu conteúdo específico das categorias aqui -->
+</section>
+{% endblock %}

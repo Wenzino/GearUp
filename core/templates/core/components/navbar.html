@@ -1,0 +1,32 @@
+<div class="collapse navbar-collapse offset" id="navbarSupportedContent">
+    <ul class="nav navbar-nav menu_nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="{% url 'core:index' %}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'core:contact' %}">Contact</a></li>
+        
+        {% if user.is_authenticated %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-user"></i> {{ user.username }}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'core:profile' %}">Meu Perfil</a>
+                    <a class="dropdown-item" href="{% url 'core:orders' %}">Meus Pedidos</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'core:logout' %}">Sair</a>
+                </div>
+            </li>
+        {% else %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'core:login' %}">Login</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'core:register' %}">Sign Up</a></li>
+        {% endif %}
+
+        <li class="nav-item">
+            <a class="nav-link position-relative" href="{% url 'core:cart' %}">
+                <i class="fa fa-shopping-cart"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    0
+                </span>
+            </a>
+        </li>
+    </ul>
+</div>

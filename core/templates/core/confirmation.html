@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Confirmação{% endblock %}
+
+{% block content %}
+<!-- Banner Area -->
+<section class="banner-area organic-breadcrumb">
+	<div class="container">
+		<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+			<div class="col-first">
+				<h1>Confirmação</h1>
+				<nav class="d-flex align-items-center">
+					<a href="{% url 'core:index' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+					<a href="#">Confirmação</a>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Área de Detalhes do Pedido -->
+<section class="order_details section_gap">
+	<div class="container">
+		<h3 class="title_confirmation">Obrigado. Seu pedido foi recebido.</h3>
+		<div class="row order_d_inner">
+			<!-- Seu conteúdo específico da confirmação aqui -->
+		</div>
+	</div>
+</section>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Rastreamento{% endblock %}
+
+{% block content %}
+<!-- Banner Area -->
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Rastreamento de Pedido</h1>
+                <nav class="d-flex align-items-center">
+                    <a href="{% url 'core:index' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+                    <a href="#">Rastreamento</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Área de Rastreamento -->
+<section class="tracking_box_area section_gap">
+    <div class="container">
+        <div class="tracking_box_inner">
+            <p>Para rastrear seu pedido, por favor insira seu ID de pedido no campo abaixo.</p>
+            <form class="row tracking_form" action="#" method="post">
+                {% csrf_token %}
+                <div class="col-md-12 form-group">
+                    <input type="text" class="form-control" name="order_id" placeholder="ID do Pedido">
+                </div>
+                <div class="col-md-12 form-group">
+                    <button type="submit" class="primary-btn">Rastrear Pedido</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

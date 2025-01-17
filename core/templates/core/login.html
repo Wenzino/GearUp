@@ -1,0 +1,81 @@
+{% extends 'core/base.html' %} {% load static %} {% block title %} Login {% endblock %} {% block content %}
+<!-- Banner Area -->
+<link rel="stylesheet" href="{% static 'core/css/custom.css' %}" />
+<section class="banner-area organic-breadcrumb">
+  <div class="container">
+    <div
+      class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end"
+    >
+      <div class="col-first">
+        <h1>Login/Registro</h1>
+        <nav class="d-flex align-items-center">
+          <a href="{% url 'core:index' %}"
+            >Home<span class="lnr lnr-arrow-right"></span
+          ></a>
+          <a href="#">Login</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Área de Login -->
+<section class="login_box_area section_gap">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="login_form_inner">
+          <h3>Login</h3>
+          {% if messages %} {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %} {% endif %}
+          <form class="row login_form" method="post" id="contactForm">
+            {% csrf_token %}
+            <div class="col-md-12 form-group">
+              <input
+                type="text"
+                class="form-control"
+                name="username"
+                placeholder="Nome de usuário"
+              />
+            </div>
+            <div class="col-md-12 form-group">
+              <input
+                type="password"
+                class="form-control"
+                name="password"
+                placeholder="Senha"
+              />
+            </div>
+            <div class="col-md-12 form-group">
+              <button type="submit" class="primary-btn">Entrar</button>
+            </div>
+          </form>
+
+          <div class="col-md-12 form-group">
+            <hr />
+            <p class="text-center">Ou entre com:</p>
+            <div class="social-login">
+              <a
+                href="{% url 'social:begin' 'google-oauth2' %}"
+                class="google-btn"
+              >
+                <i class="fa fa-google"></i> Google
+              </a>
+              <a
+                href="{% url 'social:begin' 'facebook' %}"
+                class="facebook-btn"
+              >
+                <i class="fa fa-facebook"></i> Facebook
+              </a>
+              <a href="{% url 'social:begin' 'apple-id' %}" class="apple-btn">
+                <i class="fa fa-apple"></i> Apple
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

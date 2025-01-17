@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Carrinho de Compras{% endblock %}
+
+{% block content %}
+<!-- Banner Area -->
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Carrinho de Compras</h1>
+                <nav class="d-flex align-items-center">
+                    <a href="{% url 'core:index' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+                    <a href="#">Carrinho</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Conteúdo do Carrinho -->
+<section class="cart_area">
+    <!-- Seu conteúdo específico do carrinho aqui -->
+</section>
+{% endblock %}

@@ -1,0 +1,4 @@
+env
+staticfiles
+frontend
+.env
