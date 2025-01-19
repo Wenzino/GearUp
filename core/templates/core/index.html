@@ -5,62 +5,25 @@
     <div class="row fullscreen align-items-center justify-content-start">
       <div class="col-lg-12">
         <div class="active-banner-slider owl-carousel">
-          <!-- single-slide -->
+          {% for banner in banners %}
           <div class="row single-slide align-items-center d-flex">
             <div class="col-lg-5 col-md-6">
               <div class="banner-content">
-                <h1>Nike New <br />Collection!</h1>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation.
-                </p>
+                <h1>{{ banner.title|safe }}</h1>
+                <p>{{ banner.subtitle|safe }}</p>
                 <div class="add-bag d-flex align-items-center">
-                  <a class="add-btn" href=""
-                    ><span class="lnr lnr-cross"></span
-                  ></a>
-                  <span class="add-text text-uppercase">Add to Bag</span>
+                  <a class="add-btn" href=""><span class="lnr lnr-cross"></span></a>
+                  <span class="add-text text-uppercase">{{ banner.button_text }}</span>
                 </div>
               </div>
             </div>
             <div class="col-lg-7">
               <div class="banner-img">
-                <img
-                  class="img-fluid"
-                  src="{% static 'core/img/banner/banner-img.png' %}"
-                  alt=""
-                />
+                <img class="img-fluid" src="{{ banner.image.url }}" alt="{{ banner.title }}">
               </div>
             </div>
           </div>
-          <!-- single-slide -->
-          <div class="row single-slide">
-            <div class="col-lg-5">
-              <div class="banner-content">
-                <h1>Nike New <br />Collection!</h1>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation.
-                </p>
-                <div class="add-bag d-flex align-items-center">
-                  <a class="add-btn" href=""
-                    ><span class="lnr lnr-cross"></span
-                  ></a>
-                  <span class="add-text text-uppercase">Add to Bag</span>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-7">
-              <div class="banner-img">
-                <img
-                  class="img-fluid"
-                  src="{% static 'core/img/banner/banner-img.png' %}"
-                  alt=""
-                />
-              </div>
-            </div>
-          </div>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -72,46 +35,17 @@
 <section class="features-area section_gap">
   <div class="container">
     <div class="row features-inner">
-      <!-- single features -->
+      {% for feature in features %}
       <div class="col-lg-3 col-md-6 col-sm-6">
         <div class="single-features">
           <div class="f-icon">
-            <img src="{% static 'core/img/features/f-icon1.png'  %}" alt="" />
+            <img src="{{ feature.icon.url }}" alt="{{ feature.title }}">
           </div>
-          <h6>Free Delivery</h6>
-          <p>Free Shipping on all order</p>
+          <h6>{{ feature.title }}</h6>
+          <p>{{ feature.description }}</p>
         </div>
       </div>
-      <!-- single features -->
-      <div class="col-lg-3 col-md-6 col-sm-6">
-        <div class="single-features">
-          <div class="f-icon">
-            <img src="{% static 'core/img/features/f-icon2.png'  %}" alt="" />
-          </div>
-          <h6>Return Policy</h6>
-          <p>Free Shipping on all order</p>
-        </div>
-      </div>
-      <!-- single features -->
-      <div class="col-lg-3 col-md-6 col-sm-6">
-        <div class="single-features">
-          <div class="f-icon">
-            <img src="{% static 'core/img/features/f-icon3.png'  %}" alt="" />
-          </div>
-          <h6>24/7 Support</h6>
-          <p>Free Shipping on all order</p>
-        </div>
-      </div>
-      <!-- single features -->
-      <div class="col-lg-3 col-md-6 col-sm-6">
-        <div class="single-features">
-          <div class="f-icon">
-            <img src="{% static 'core/img/features/f-icon4.png'  %}" alt="" />
-          </div>
-          <h6>Secure Payment</h6>
-          <p>Free Shipping on all order</p>
-        </div>
-      </div>
+      {% endfor %}
     </div>
   </div>
 </section>
@@ -230,73 +164,49 @@
   <!-- single product slide -->
   <div class="single-product-slider">
     <div class="container">
+      {% if section_contents.latest_products %}
       <div class="row justify-content-center">
         <div class="col-lg-6 text-center">
           <div class="section-title">
-            <h1>Latest Products</h1>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </p>
+            <h1>{{ section_contents.latest_products.title|safe }}</h1>
+            <p>{{ section_contents.latest_products.description|safe }}</p>
           </div>
         </div>
       </div>
       <div class="row">
         <!-- single product -->
+        {% for product in latest_products %}
         <div class="col-lg-3 col-md-6">
           <div class="single-product">
             <img
               class="img-fluid"
-              src="{% static 'core/img/product/p1.jpg' %}"
-              alt=""
+              src="{{ product.image.url }}"
+              alt="{{ product.name }}"
             />
             <div class="product-details">
-              <h6>addidas New Hammer sole for Sports person</h6>
+              <h6>{{ product.name }}</h6>
               <div class="price">
-                <h6>$150.00</h6>
-                <h6 class="l-through">$210.00</h6>
+                <h6>${{ product.price }}</h6>
+                {% if product.old_price %}
+                  <h6 class="l-through">${{ product.old_price }}</h6>
+                {% endif %}
               </div>
               <div class="prd-bottom">
                 <a href="" class="social-info">
                   <span class="lnr lnr-cart"></span>
-                  <p class="hover-text">add to bag</p>
+                  <p class="hover-text">adicionar ao carrinho</p>
                 </a>
                 <a href="" class="social-info">
                   <span class="lnr lnr-move"></span>
-                  <p class="hover-text">view more</p>
+                  <p class="hover-text">ver mais</p>
                 </a>
               </div>
             </div>
           </div>
         </div>
-        <!-- single product -->
-        <div class="col-lg-3 col-md-6">
-          <div class="single-product">
-            <img
-              class="img-fluid"
-              src="{% static 'core/img/product/p1.jpg' %}"
-              alt=""
-            />
-            <div class="product-details">
-              <h6>addidas New Hammer sole for Sports person</h6>
-              <div class="price">
-                <h6>$150.00</h6>
-                <h6 class="l-through">$210.00</h6>
-              </div>
-              <div class="prd-bottom">
-                <a href="" class="social-info">
-                  <span class="lnr lnr-cart"></span>
-                  <p class="hover-text">add to cart</p>
-                </a>
-                <a href="" class="social-info">
-                  <span class="lnr lnr-move"></span>
-                  <p class="hover-text">view more</p>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        {% endfor %}
       </div>
+      {% endif %}
     </div>
   </div>
   <!-- single product slide -->
@@ -384,21 +294,11 @@
 <section class="brand-area section_gap">
 	<div class="container">
 		<div class="row">
-			<a class="col single-img" href="#">
-				<img class="img-fluid d-block mx-auto" src="{% static 'core/img/brand/1.png' %}" alt="">
+			{% for brand in brands %}
+			<a class="col single-img" href="{{ brand.url }}">
+				<img class="img-fluid d-block mx-auto" src="{{ brand.logo.url }}" alt="{{ brand.name }}">
 			</a>
-			<a class="col single-img" href="#">
-				<img class="img-fluid d-block mx-auto" src="{% static 'core/img/brand/2.png' %}" alt="">
-			</a>
-			<a class="col single-img" href="#">
-				<img class="img-fluid d-block mx-auto" src="{% static 'core/img/brand/3.png' %}" alt="">
-			</a>
-			<a class="col single-img" href="#">
-				<img class="img-fluid d-block mx-auto" src="{% static 'core/img/brand/4.png' %}" alt="">
-			</a>
-			<a class="col single-img" href="#">
-				<img class="img-fluid d-block mx-auto" src="{% static 'core/img/brand/5.png' %}	" alt="">
-			</a>
+			{% endfor %}
 		</div>
 	</div>
 </section>
@@ -409,124 +309,33 @@
 	<div class="container">
 		<div class="row justify-content-center">
 			<div class="col-lg-6 text-center">
+				{% if section_contents.deals_week %}
 				<div class="section-title">
-					<h1>Deals of the Week</h1>
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
-						magna aliqua.</p>
+					<h1>{{ section_contents.deals_week.title|safe }}</h1>
+					<p>{{ section_contents.deals_week.description|safe }}</p>
 				</div>
+				{% endif %}
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-lg-9">
 				<div class="row">
+					{% for product in deals_products %}
 					<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
 						<div class="single-related-product d-flex">
-							<a href="#"><img src="{% static 'core/img/r1.jpg' %}" alt=""></a>
+							<a href="#"><img src="{{ product.image.url }}" alt="{{ product.name }}"></a>
 							<div class="desc">
-								<a href="#" class="title">Black lace Heels</a>
+								<a href="#" class="title">{{ product.name }}</a>
 								<div class="price">
-									<h6>$189.00</h6>
-									<h6 class="l-through">$210.00</h6>
+									<h6>${{ product.price }}</h6>
+									{% if product.old_price %}
+										<h6 class="l-through">${{ product.old_price }}</h6>
+									{% endif %}
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-						<div class="single-related-product d-flex">
-							<a href="#"><img src="{% static 'core/img/r2.jpg' %}" alt=""></a>
-							<div class="desc">
-								<a href="#" class="title">Black lace Heels</a>
-								<div class="price">
-									<h6>$189.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-						<div class="single-related-product d-flex">
-							<a href="#"><img src="{% static 'core/img/r3.jpg' %}" alt=""></a>
-							<div class="desc">
-								<a href="#" class="title">Black lace Heels</a>
-								<div class="price">
-									<h6>$189.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-						<div class="single-related-product d-flex">
-							<a href="#"><img src="{% static 'core/img/r5.jpg' %}" alt=""></a>
-							<div class="desc">
-								<a href="#" class="title">Black lace Heels</a>
-								<div class="price">
-									<h6>$189.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-						<div class="single-related-product d-flex">
-							<a href="#"><img src="{% static 'core/img/r6.jpg' %}" alt=""></a>
-							<div class="desc">
-								<a href="#" class="title">Black lace Heels</a>
-								<div class="price">
-									<h6>$189.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
-						<div class="single-related-product d-flex">
-							<a href="#"><img src="{% static 'core/img/r7.jpg' %}" alt=""></a>
-							<div class="desc">
-								<a href="#" class="title">Black lace Heels</a>
-								<div class="price">
-									<h6>$189.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4 col-md-4 col-sm-6">
-						<div class="single-related-product d-flex">
-							<a href="#"><img src="{% static 'core/img/r9.jpg' %}" alt=""></a>
-							<div class="desc">
-								<a href="#" class="title">Black lace Heels</a>
-								<div class="price">
-									<h6>$189.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4 col-md-4 col-sm-6">
-						<div class="single-related-product d-flex">
-							<a href="#"><img src="{% static 'core/img/r10.jpg' %}" alt=""></a>
-							<div class="desc">
-								<a href="#" class="title">Black lace Heels</a>
-								<div class="price">
-									<h6>$189.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4 col-md-4 col-sm-6">
-						<div class="single-related-product d-flex">
-							<a href="#"><img src="{% static 'core/img/r11.jpg' %}" alt=""></a>
-							<div class="desc">
-								<a href="#" class="title">Black lace Heels</a>
-								<div class="price">
-									<h6>$189.00</h6>
-									<h6 class="l-through">$210.00</h6>
-								</div>
-							</div>
-						</div>
-					</div>
+					{% endfor %}
 				</div>
 			</div>
 			<div class="col-lg-3">

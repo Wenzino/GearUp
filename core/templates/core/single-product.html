@@ -1,7 +1,7 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Detalhes do Produto{% endblock %}
+{% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
 <!-- Banner Area -->
@@ -9,73 +9,101 @@
 	<div class="container">
 		<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
 			<div class="col-first">
-				<h1>Detalhes do Produto</h1>
+				<h1>{{ product.name }}</h1>
 				<nav class="d-flex align-items-center">
 					<a href="{% url 'core:index' %}">Home<span class="lnr lnr-arrow-right"></span></a>
-					<a href="#">Produto</a>
+					<a href="#">{{ product.name }}</a>
 				</nav>
 			</div>
 		</div>
 	</div>
 </section>
 
+<!-- Produto Single -->
+<div class="product_image_area">
+	<div class="container">
+		<div class="row s_product_inner">
+			<div class="col-lg-6">
+				<div class="single-prd-item">
+					<img class="img-fluid" src="{{ product.image.url }}" alt="{{ product.name }}">
+				</div>
+			</div>
+			<div class="col-lg-5 offset-lg-1">
+				<div class="s_product_text">
+					<h3>{{ product.name }}</h3>
+					<h2>${{ product.price }}</h2>
+					<ul class="list">
+						<li><span>Disponibilidade</span> : {% if product.stock_quantity > 0 %}Em estoque{% else %}Esgotado{% endif %}</li>
+					</ul>
+					<p>{{ product.description }}</p>
+					<form action="{% url 'core:add_to_cart' product.id %}" method="post" class="d-flex align-items-center">
+						{% csrf_token %}
+						<div class="product_count">
+							<input type="number" name="quantity" id="sst" max="{{ product.stock_quantity }}" value="1" min="1">
+						</div>
+						<button type="submit" class="primary-btn">Adicionar ao Carrinho</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <!-- Área de Descrição do Produto -->
 <section class="product_description_area">
 	<div class="container">
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
 			<li class="nav-item">
-				<a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Especificações</a>
+				<a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab">Descrição</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Comentários</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link active" id="review-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review" aria-selected="false">Avaliações</a>
+				<a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab">Especificações</a>
 			</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
-			<!-- Conteúdo das Especificações -->
-			<div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-				<!-- Seu conteúdo de especificações aqui -->
+			<div class="tab-pane fade show active" id="home" role="tabpanel">
+				{{ product.description|linebreaks }}
 			</div>
-
-			<!-- Conteúdo dos Comentários -->
-			<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-				<!-- Seu conteúdo de comentários aqui -->
-			</div>
-
-			<!-- Conteúdo das Avaliações -->
-			<div class="tab-pane fade show active" id="review" role="tabpanel" aria-labelledby="review-tab">
-				<!-- Seu conteúdo de avaliações aqui -->
+			<div class="tab-pane fade" id="profile" role="tabpanel">
+				{{ product.specifications|linebreaks }}
 			</div>
 		</div>
 	</div>
 </section>
 
-<!-- Área de Produtos Relacionados -->
+<!-- Produtos Relacionados -->
 <section class="related-product-area section_gap_bottom">
 	<div class="container">
 		<div class="row justify-content-center">
 			<div class="col-lg-6 text-center">
 				<div class="section-title">
-					<h1>Ofertas da Semana</h1>
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+					<h1>Produtos Relacionados</h1>
 				</div>
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-lg-9">
-				<div class="row">
-					<!-- Produtos relacionados aqui -->
+			{% for related in related_products %}
+			<div class="col-lg-3 col-md-6">
+				<div class="single-product">
+					<img class="img-fluid" src="{{ related.image.url }}" alt="{{ related.name }}">
+					<div class="product-details">
+						<h6>{{ related.name }}</h6>
+						<div class="price">
+							<h6>${{ related.price }}</h6>
+							{% if related.old_price %}
+							<h6 class="l-through">${{ related.old_price }}</h6>
+							{% endif %}
+						</div>
+						<div class="prd-bottom">
+							<a href="{% url 'core:product_detail' related.id %}" class="social-info">
+								<span class="lnr lnr-move"></span>
+								<p class="hover-text">ver mais</p>
+							</a>
+						</div>
+					</div>
 				</div>
 			</div>
-			<div class="col-lg-3">
-				<div class="ctg-right">
-					<a href="#" target="_blank">
-						<img class="img-fluid d-block mx-auto" src="{% static 'core/img/category/c5.jpg' %}" alt="">
-					</a>
-				</div>
-			</div>
+			{% endfor %}
 		</div>
 	</div>
 </section>

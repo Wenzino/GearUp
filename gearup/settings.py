@@ -169,3 +169,7 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'core:index'
 LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL = 'core:index'
+
+# Configurações de mídia
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

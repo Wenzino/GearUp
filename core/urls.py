@@ -18,4 +18,6 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('register/', views.register_view, name='register'),
     path('social-auth/', include('social_django.urls', namespace='social')),
+    path('product/<int:id>/', views.product_detail, name='product_detail'),
 ] 
+

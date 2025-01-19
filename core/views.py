@@ -1,11 +1,23 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, authenticate, login
 from django.contrib import messages
+from .models import Product, Banner, Feature, Brand, SectionContent
 
 
 def index(request):
-    return render(request, 'core/index.html')
+    context = {
+        'banners': Banner.objects.filter(active=True),
+        'features': Feature.objects.all(),
+        'brands': Brand.objects.all(),
+        'latest_products': Product.objects.all().order_by('-created_at')[:8],
+        'deals_products': Product.objects.all().order_by('?')[:9],
+        'section_contents': {
+            content.section: content 
+            for content in SectionContent.objects.all()
+        }
+    }
+    return render(request, 'core/index.html', context)
 
 def cart(request):
     return render(request, 'core/cart.html')
@@ -49,3 +61,13 @@ def logout_view(request):
 
 def register_view(request):
     return render(request, 'core/register.html')
+
+def product_detail(request, id):
+    product = get_object_or_404(Product, id=id)
+    related_products = Product.objects.exclude(id=id).order_by('?')[:4]
+    
+    context = {
+        'product': product,
+        'related_products': related_products,
+    }
+    return render(request, 'core/single-product.html', context)
