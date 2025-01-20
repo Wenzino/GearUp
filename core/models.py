@@ -109,6 +109,7 @@ class SectionContent(models.Model):
     section = models.CharField(max_length=50, choices=SECTION_CHOICES, unique=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
+    products = models.ManyToManyField('Product', related_name='sections')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

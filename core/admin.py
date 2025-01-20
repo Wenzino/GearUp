@@ -28,3 +28,4 @@ class BrandAdmin(admin.ModelAdmin):
 class SectionContentAdmin(admin.ModelAdmin):
     list_display = ['section', 'title', 'created_at']
     search_fields = ['title', 'description']
+    filter_horizontal = ['products']

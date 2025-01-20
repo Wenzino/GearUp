@@ -10,13 +10,23 @@ def index(request):
         'banners': Banner.objects.filter(active=True),
         'features': Feature.objects.all(),
         'brands': Brand.objects.all(),
-        'latest_products': Product.objects.all().order_by('-created_at')[:8],
-        'deals_products': Product.objects.all().order_by('?')[:9],
         'section_contents': {
-            content.section: content 
-            for content in SectionContent.objects.all()
+            'latest_products': SectionContent.objects.filter(section='latest_products').first(),
+            'coming_products': SectionContent.objects.filter(section='coming_products').first(),
+            'deals_week': SectionContent.objects.filter(section='deals_week').first(),
         }
     }
+    
+    # Adicione os produtos de cada seção ao contexto
+    if context['section_contents']['latest_products']:
+        context['latest_products'] = context['section_contents']['latest_products'].products.all()
+    
+    if context['section_contents']['coming_products']:
+        context['coming_products'] = context['section_contents']['coming_products'].products.all()
+    
+    if context['section_contents']['deals_week']:
+        context['deals_products'] = context['section_contents']['deals_week'].products.all()
+    
     return render(request, 'core/index.html', context)
 
 def cart(request):
@@ -63,7 +73,7 @@ def register_view(request):
     return render(request, 'core/register.html')
 
 def product_detail(request, id):
-    product = get_object_or_404(Product, id=id)
+    product = get_object_or_404(Product, id=id)  
     related_products = Product.objects.exclude(id=id).order_by('?')[:4]
     
     context = {
