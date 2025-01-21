@@ -24,6 +24,7 @@
     <div class="container">
         <div class="cart_inner">
             <div class="table-responsive">
+                {% if cart_items %}
                 <table class="table">
                     <thead>
                         <tr>
@@ -31,6 +32,7 @@
                             <th scope="col">Preço</th>
                             <th scope="col">Quantidade</th>
                             <th scope="col">Total</th>
+                            <th scope="col">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -60,42 +62,37 @@
                                             <i class="lnr lnr-sync"></i>
                                         </button>
                                     </form>
-                                    <form action="{% url 'core:remove_from_cart' item.product.id %}" method="post" class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-link text-danger p-0">
-                                            <i class="lnr lnr-trash"></i>
-                                        </button>
-                                    </form>
                                 </div>
                             </td>
                             <td>
                                 <h5>${{ item.subtotal }}</h5>
                             </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center">
-                                <p>Seu carrinho está vazio</p>
-                                <a href="{% url 'core:index' %}" class="primary-btn">Continuar Comprando</a>
+                            <td>
+                                <form action="{% url 'core:remove_from_cart' item.product.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="lnr lnr-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}
                         
-                        {% if cart_items %}
+                        <!-- Área de Cupom -->
                         <tr class="bottom_button">
-                            <td>
-                                <a class="gray_btn" href="{% url 'core:index' %}">Continuar Comprando</a>
-                            </td>
                             <td></td>
                             <td></td>
                             <td>
-                                <div class="cupon_text d-flex align-items-center">
+                                <div class="cupon_text">
                                     <input type="text" placeholder="Cupom de Desconto">
                                     <a class="primary-btn" href="#">Aplicar</a>
-                                    <a class="gray_btn" href="#">Fechar Cupom</a>
                                 </div>
                             </td>
+                            <td></td>
+                            <td></td>
                         </tr>
+
+                        <!-- Subtotal -->
                         <tr>
                             <td></td>
                             <td></td>
@@ -105,7 +102,10 @@
                             <td>
                                 <h5>${{ total }}</h5>
                             </td>
+                            <td></td>
                         </tr>
+
+                        <!-- Frete -->
                         <tr class="shipping_area">
                             <td></td>
                             <td></td>
@@ -117,25 +117,14 @@
                                     <ul class="list">
                                         <li><a href="#">Taxa Fixa: $5.00</a></li>
                                         <li><a href="#">Frete Grátis</a></li>
-                                        <li><a href="#">Taxa Fixa: $10.00</a></li>
                                         <li class="active"><a href="#">Entrega Local: $2.00</a></li>
                                     </ul>
-                                    <h6>Calcular Frete <i class="fa fa-caret-down" aria-hidden="true"></i></h6>
-                                    <select class="shipping_select">
-                                        <option value="1">Brasil</option>
-                                        <option value="2">Estados Unidos</option>
-                                        <option value="4">Canadá</option>
-                                    </select>
-                                    <select class="shipping_select">
-                                        <option value="1">Selecione o Estado</option>
-                                        <option value="2">São Paulo</option>
-                                        <option value="4">Rio de Janeiro</option>
-                                    </select>
-                                    <input type="text" placeholder="CEP">
-                                    <a class="gray_btn" href="#">Atualizar Detalhes</a>
                                 </div>
                             </td>
+                            <td></td>
                         </tr>
+
+                        <!-- Botões de Ação -->
                         <tr class="out_button_area">
                             <td></td>
                             <td></td>
@@ -143,13 +132,19 @@
                             <td>
                                 <div class="checkout_btn_inner d-flex align-items-center">
                                     <a class="gray_btn" href="{% url 'core:index' %}">Continuar Comprando</a>
-                                    <a class="primary-btn" href="{% url 'core:checkout' %}">Finalizar Compra</a>
+                                    <a class="primary-btn ml-2" href="{% url 'core:checkout' %}">Finalizar Compra</a>
                                 </div>
                             </td>
+                            <td></td>
                         </tr>
-                        {% endif %}
                     </tbody>
                 </table>
+                {% else %}
+                <div class="text-center py-5">
+                    <h3>Seu carrinho está vazio</h3>
+                    <a href="{% url 'core:index' %}" class="primary-btn mt-3">Continuar Comprando</a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

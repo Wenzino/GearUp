@@ -25,6 +25,7 @@
 	<link rel="stylesheet" href="{% static 'core/css/ion.rangeSlider.css' %}" />
 	<link rel="stylesheet" href="{% static 'core/css/ion.rangeSlider.skinFlat.css' %}" />
 	<link rel="stylesheet" href="{% static 'core/css/magnific-popup.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     {% include 'core/components/header.html' %}
@@ -47,5 +48,6 @@
         const STATIC_URL = "{% static 'core/' %}";
     </script>
     <script src="{% static 'core/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

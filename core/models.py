@@ -38,29 +38,70 @@ class User(models.Model):
     
 # Order
 class Order(models.Model):
-    order_id = models.IntegerField(primary_key=True)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = models.CharField(max_length=45)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    create_at = models.DateTimeField(auto_now_add=True)
-    update_at = models.DateTimeField(auto_now=True)
+    STATUS_CHOICES = [
+        ('pending', 'Pendente'),
+        ('paid', 'Pago'),
+        ('shipped', 'Enviado'),
+        ('delivered', 'Entregue'),
+        ('cancelled', 'Cancelado'),
+    ]
+
+    PAYMENT_METHOD_CHOICES = [
+        ('credit_card', 'Cartão de Crédito'),
+        ('debit_card', 'Cartão de Débito'),
+        ('pix', 'PIX'),
+        ('bank_slip', 'Boleto'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    
+    # Informações de envio
+    shipping_address = models.TextField()
+    shipping_city = models.CharField(max_length=100)
+    shipping_state = models.CharField(max_length=100)
+    shipping_zip = models.CharField(max_length=10)
+    shipping_country = models.CharField(max_length=100)
+    
+    # Informações financeiras
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Rastreamento
+    tracking_number = models.CharField(max_length=100, null=True, blank=True)
+    
+    # Datas
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.oid
-    
+        return f"Pedido #{self.id} - {self.user.username}"
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def save(self, *args, **kwargs):
+        # Calcula o total antes de salvar
+        if not self.total:
+            self.total = self.subtotal + self.shipping_cost
+        super().save(*args, **kwargs)
+
 # OrderItem
 class OrderItem(models.Model):
-    order_item_id = models.IntegerField(primary_key=True)
-    order_id = models.ForeignKey(Order, on_delete=models.CASCADE)
-    product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    create_at = models.DateTimeField(auto_now_add=True)
-    update_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.order_item_id
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # Preço no momento da compra
     
+    def __str__(self):
+        return f"{self.quantity}x {self.product.name} em Pedido #{self.order.id}"
+
+    @property
+    def subtotal(self):
+        return self.quantity * self.price
+
 # Payment
 class Payment(models.Model): 
     payment_id = models.IntegerField(primary_key=True)
@@ -148,4 +189,41 @@ class Review(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - {self.product.name} - {self.rating} estrelas'
+
+class Checkout(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pendente'),
+        ('paid', 'Pago'),
+        ('shipped', 'Enviado'),
+        ('delivered', 'Entregue'),
+        ('cancelled', 'Cancelado'),
+    ]
+
+    PAYMENT_METHOD_CHOICES = [
+        ('credit_card', 'Cartão de Crédito'),
+        ('debit_card', 'Cartão de Débito'),
+        ('pix', 'PIX'),
+        ('bank_slip', 'Boleto'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    shipping_address = models.TextField()
+    shipping_city = models.CharField(max_length=100)
+    shipping_state = models.CharField(max_length=100)
+    shipping_zip = models.CharField(max_length=10)
+    shipping_country = models.CharField(max_length=100)
+    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    tracking_number = models.CharField(max_length=100, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Checkout #{self.id} - {self.user.username}"
+
+    class Meta:
+        ordering = ['-created_at']
 

@@ -3,7 +3,13 @@
 
 {% block title %}Checkout{% endblock %}
 
+{% block extra_css %}
+<!-- Adicione o CSS customizado -->
+<link rel="stylesheet" href="{% static 'core/css/custom.css' %}">
+{% endblock %}
+
 {% block content %}
+
 <!-- Banner Area -->
 <section class="banner-area organic-breadcrumb">
     <div class="container">
@@ -19,8 +25,154 @@
     </div>
 </section>
 
-<!-- Conteúdo do Checkout -->
+<!-- Área de Checkout -->
 <section class="checkout_area section_gap">
-    <!-- Seu conteúdo específico do checkout aqui -->
+    <div class="container">
+        {% if not request.user.is_authenticated %}
+        <div class="returning_customer">
+            <div class="check_title">
+                <h2>Already have an account? <a href="{% url 'core:login' %}">Click here to login</a></h2>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="billing_details">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h3>Shipping Details</h3>
+                    <form class="row contact_form" action="{% url 'core:checkout' %}" method="post" novalidate="novalidate">
+                        {% csrf_token %}
+                        
+                        <!-- Contact Information -->
+                        <div class="col-md-12 form-group">
+                            <input type="email" class="form-control" name="email" 
+                                   value="{{ request.user.email }}" placeholder="Email" required>
+                        </div>
+                        
+                        <!-- Name -->
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" name="first_name" placeholder="First Name" 
+                                   value="{{ request.user.first_name }}" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" name="last_name" placeholder="Last Name"
+                                   value="{{ request.user.last_name }}" required>
+                        </div>
+                        
+                        <!-- Shipping Address -->
+                        <div class="col-md-12 form-group">
+                            <input type="text" class="form-control" name="address" placeholder="Street Address" required>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="text" class="form-control" name="address2" placeholder="Apartment, suite, etc. (optional)">
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <input type="text" class="form-control" name="city" placeholder="City" required>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <input type="text" class="form-control" name="state" placeholder="State/Province" required>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <input type="text" class="form-control" name="postal_code" placeholder="Postal Code" required>
+                        </div>
+                        
+                        <!-- Payment Method -->
+                        <div class="col-md-12 form-group">
+                            <h3>Payment Method</h3>
+                            <div class="payment-methods">
+                                <div class="payment-method-buttons">
+                                    <!-- Credit Card - Stripe -->
+                                    <button type="button" class="payment-method-btn active" data-method="credit_card">
+                                        <div class="payment-method-content">
+                                            <img src="{% static 'core/img/payment/stripe.png' %}" alt="Credit Card">
+                                            <span>Credit Card</span>
+                                        </div>
+                                    </button>
+
+                                    <!-- PayPal -->
+                                    <button type="button" class="payment-method-btn" data-method="paypal">
+                                        <div class="payment-method-content">
+                                            <img src="{% static 'core/img/payment/paypal.png' %}" alt="PayPal">
+                                            <span>PayPal</span>
+                                        </div>
+                                    </button>
+
+                                    <!-- Google Pay -->
+                                    <button type="button" class="payment-method-btn" data-method="google_pay">
+                                        <div class="payment-method-content">
+                                            <img src="{% static 'core/img/payment/google-pay.png' %}" alt="Google Pay">
+                                            <span>Google Pay</span>
+                                        </div>
+                                    </button>
+
+                                    <!-- Apple Pay -->
+                                    <button type="button" class="payment-method-btn" data-method="apple_pay">
+                                        <div class="payment-method-content">
+                                            <img src="{% static 'core/img/payment/apple-pay.png' %}" alt="Apple Pay">
+                                            <span>Apple Pay</span>
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <!-- Hidden input to store selected payment method -->
+                                <input type="hidden" name="payment_method" id="selected_payment_method" value="credit_card">
+                            </div>
+                        </div>
+                        
+                        <!-- Terms -->
+                        <div class="col-md-12 form-group">
+                            <div class="creat_account">
+                                <input type="checkbox" id="terms" name="terms" required>
+                                <label for="terms">I agree to the </label>
+                                <a href="#">Terms & Conditions</a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-12 form-group">
+                            <button type="submit" class="primary-btn">Place Order</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="col-lg-4">
+                    <div class="order_box">
+                        <h2>Order Summary</h2>
+                        <ul class="list">
+                            <li><a href="#">Product <span>Total</span></a></li>
+                            {% for item in cart_items %}
+                            <li>
+                                <a href="#">{{ item.product.name }}
+                                    <span class="middle">x {{ item.quantity }}</span>
+                                    <span class="last">${{ item.subtotal }}</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <ul class="list list_2">
+                            <li><a href="#">Subtotal <span>${{ subtotal }}</span></a></li>
+                            <li><a href="#">Shipping <span>${{ shipping_cost }}</span></a></li>
+                            <li><a href="#">Total <span>${{ total }}</span></a></li>
+                        </ul>
+                        
+                        <!-- Promo Code -->
+                        <div class="coupon mt-4">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Promo Code">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button">Apply</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Adicione o JavaScript customizado -->
+<script src="{% static 'core/js/payment-methods.js' %}"></script>
 {% endblock %}

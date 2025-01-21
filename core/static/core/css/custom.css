@@ -22,4 +22,72 @@
 
 .apple-btn {
     background-color: #000000;
+}
+
+.payment-methods {
+    margin: 20px 0;
+}
+
+.payment-method-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.payment-method-btn {
+    background: #fff;
+    border: 2px solid #e8e8e8;
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-method-btn:hover {
+    border-color: #ffba00;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.payment-method-btn.active {
+    border-color: #ffba00;
+    background: rgba(255,186,0,0.05);
+}
+
+.payment-method-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.payment-method-content img {
+    height: 24px;
+    width: auto;
+    object-fit: contain;
+}
+
+.payment-method-content span {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .payment-method-buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .payment-method-buttons {
+        grid-template-columns: 1fr;
+    }
 } 

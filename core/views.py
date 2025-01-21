@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, authenticate, login
 from django.contrib import messages
 from django.db.models import Avg
-from .models import Product, Banner, Feature, Brand, SectionContent, Review
+from .models import Product, Banner, Feature, Brand, SectionContent, Review, Order, OrderItem
+from decimal import Decimal
 
 
 def index(request):
@@ -52,8 +53,68 @@ def cart(request):
     
     return render(request, 'core/cart.html', context)
 
+@login_required
 def checkout(request):
-    return render(request, 'core/checkout.html')
+    cart = request.session.get('cart', {})
+    if not cart:
+        messages.warning(request, 'Seu carrinho está vazio!')
+        return redirect('core:cart')
+    
+    cart_items = []
+    subtotal = 0
+    
+    for product_id, quantity in cart.items():
+        product = get_object_or_404(Product, id=int(product_id))
+        item_subtotal = product.price * quantity
+        subtotal += item_subtotal
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'subtotal': item_subtotal
+        })
+    
+    shipping_cost = Decimal('5.00')  # Valor fixo por enquanto
+    total = subtotal + shipping_cost
+    
+    if request.method == 'POST':
+        # Criar pedido
+        order = Order.objects.create(
+            user=request.user,
+            status='pending',
+            payment_method=request.POST.get('payment_method'),
+            shipping_address=request.POST.get('address'),
+            shipping_city=request.POST.get('city'),
+            shipping_state=request.POST.get('state'),
+            shipping_zip=request.POST.get('zip'),
+            shipping_country=request.POST.get('country', 'Brasil'),
+            subtotal=subtotal,
+            shipping_cost=shipping_cost,
+            total=total
+        )
+        
+        # Criar itens do pedido
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item['product'],
+                quantity=item['quantity'],
+                price=item['product'].price
+            )
+        
+        # Limpar carrinho
+        request.session['cart'] = {}
+        
+        messages.success(request, 'Pedido realizado com sucesso!')
+        return redirect('core:order_confirmation', order_id=order.id)
+    
+    context = {
+        'cart_items': cart_items,
+        'subtotal': subtotal,
+        'shipping_cost': shipping_cost,
+        'total': total
+    }
+    
+    return render(request, 'core/checkout.html', context)
 
 def contact(request):
     return render(request, 'core/contact.html')
