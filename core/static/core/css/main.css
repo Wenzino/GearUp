@@ -3970,13 +3970,13 @@ label {
 .product_count {
   display: inline-block;
   position: relative;
-  margin-bottom: 24px; }
+  padding-right: 12px; }
   .product_count label {
     font-size: 14px;
     color: #777777;
     font-family: "Roboto", sans-serif;
     font-weight: normal;
-    padding-right: 10px; }
+    padding-right: 12px; }
   .product_count input {
     width: 76px;
     border: 1px solid #eeeeee;
@@ -6177,5 +6177,49 @@ label {
     
     .nav-link.position-relative .badge {
         top: 5px;
+    }
+}
+
+/* Estilo para o ícone do carrinho com badge */
+.cart.position-relative {
+    display: inline-block;
+    position: relative;
+}
+
+.cart.position-relative .ti-bag {
+    font-size: 20px;
+    color: #222222;
+}
+
+.cart.position-relative .badge {
+    position: absolute;
+    top: 25px;  /* Ajustado de -10px para -5px */
+    right: -7px; /* Ajustado de -10px para -5px */
+    min-width: 15px; /* Reduzido de 18px para 15px */
+    height: 15px; /* Reduzido de 18px para 15px */
+    border-radius: 50%;
+    font-size: 10px; /* Reduzido de 11px para 10px */
+    line-height: 15px; /* Ajustado para corresponder à altura */
+    font-weight: 500;
+    text-align: center;
+    background: -webkit-linear-gradient(90deg, #ffba00 0%, #ff6c00 100%);
+    background: linear-gradient(90deg, #ffba00 0%, #ff6c00 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+/* Hover effect */
+.cart.position-relative:hover .ti-bag {
+    color: #ffba00;
+}
+
+/* Responsividade */
+@media (max-width: 991px) {
+    .cart.position-relative .badge {
+        top: -3px;
+        right: -3px;
     }
 }

@@ -19,13 +19,22 @@
 	</div>
 </section>
 
-<!-- Produto Single -->
+<!-- Área da Imagem do Produto -->
 <div class="product_image_area">
 	<div class="container">
 		<div class="row s_product_inner">
 			<div class="col-lg-6">
-				<div class="single-prd-item">
-					<img class="img-fluid" src="{{ product.image.url }}" alt="{{ product.name }}">
+				<div class="s_Product_carousel">
+					<div class="single-prd-item">
+						<img class="img-fluid" src="{{ product.image.url }}" alt="{{ product.name }}">
+					</div>
+					<!-- Adicionar carrossel de imagens se necessário -->
+					<div class="single-prd-item">
+						<img class="img-fluid" src="{{ product.image.url }}" alt="{{ product.name }}">
+					</div>
+					<div class="single-prd-item">
+						<img class="img-fluid" src="{{ product.image.url }}" alt="{{ product.name }}">
+					</div>
 				</div>
 			</div>
 			<div class="col-lg-5 offset-lg-1">
@@ -33,13 +42,17 @@
 					<h3>{{ product.name }}</h3>
 					<h2>${{ product.price }}</h2>
 					<ul class="list">
+						<li><span>Categoria</span> : {{ product.category|default:"Não categorizado" }}</li>
 						<li><span>Disponibilidade</span> : {% if product.stock_quantity > 0 %}Em estoque{% else %}Esgotado{% endif %}</li>
 					</ul>
 					<p>{{ product.description }}</p>
 					<form action="{% url 'core:add_to_cart' product.id %}" method="post" class="d-flex align-items-center">
 						{% csrf_token %}
 						<div class="product_count">
-							<input type="number" name="quantity" id="sst" max="{{ product.stock_quantity }}" value="1" min="1">
+							<label for="qty">Quantidade:</label>
+							<input type="number" name="quantity" id="sst" value="1" 
+								   min="1" max="{{ product.stock_quantity }}"
+								   title="Quantidade:" class="input-text qty">
 						</div>
 						<button type="submit" class="primary-btn">Adicionar ao Carrinho</button>
 					</form>
@@ -59,13 +72,111 @@
 			<li class="nav-item">
 				<a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab">Especificações</a>
 			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="review-tab" data-toggle="tab" href="#review" role="tab">Avaliações</a>
+			</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
+			<!-- Aba de Descrição -->
 			<div class="tab-pane fade show active" id="home" role="tabpanel">
 				{{ product.description|linebreaks }}
 			</div>
+			
+			<!-- Aba de Especificações -->
 			<div class="tab-pane fade" id="profile" role="tabpanel">
 				{{ product.specifications|linebreaks }}
+			</div>
+			
+			<!-- Aba de Avaliações -->
+			<div class="tab-pane fade" id="review" role="tabpanel">
+				<div class="row">
+					<div class="col-lg-6">
+						<div class="row total_rate">
+							<div class="col-6">
+								<div class="box_total">
+									<h5>Avaliação Geral</h5>
+									<h4>{{ avg_rating|floatformat:1 }}</h4>
+									<h6>({{ total_reviews }} Avaliações)</h6>
+								</div>
+							</div>
+							<div class="col-6">
+								<div class="rating_list">
+									<h3>Baseado em {{ total_reviews }} Avaliações</h3>
+									<ul class="list">
+										{% for stars, count in rating_counts.items reversed %}
+										<li>
+											<a href="#">{{ stars }} Estrelas 
+												{% for i in ""|ljust:stars %}
+													<i class="fa fa-star"></i>
+												{% endfor %}
+												{{ count }}
+											</a>
+										</li>
+										{% endfor %}
+									</ul>
+								</div>
+							</div>
+						</div>
+						
+						<!-- Lista de avaliações -->
+						<div class="reviews_list mt-4">
+							{% for review in reviews %}
+							<div class="review_item">
+								<div class="media">
+									<div class="media-body">
+										<h4>{{ review.user.username }}</h4>
+										{% for i in ""|ljust:review.rating %}
+											<i class="fa fa-star"></i>
+										{% endfor %}
+									</div>
+									<div class="review-date">
+										{{ review.created_at|date:"d/m/Y" }}
+									</div>
+								</div>
+								<p>{{ review.comment }}</p>
+							</div>
+							{% endfor %}
+						</div>
+					</div>
+					
+					<!-- Formulário de avaliação -->
+					{% if user.is_authenticated %}
+					<div class="col-lg-6">
+						<div class="review_box">
+							<h4>Adicionar Avaliação</h4>
+							<form class="row contact_form" action="{% url 'core:add_review' product.id %}" method="post">
+								{% csrf_token %}
+								<div class="col-md-12">
+									<div class="form-group">
+										<select name="rating" class="form-control" required>
+											<option value="">Selecione sua avaliação</option>
+											<option value="5">5 estrelas</option>
+											<option value="4">4 estrelas</option>
+											<option value="3">3 estrelas</option>
+											<option value="2">2 estrelas</option>
+											<option value="1">1 estrela</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<textarea class="form-control" name="review" rows="1" placeholder="Seu comentário" required></textarea>
+									</div>
+								</div>
+								<div class="col-md-12 text-right">
+									<button type="submit" class="primary-btn">Enviar Avaliação</button>
+								</div>
+							</form>
+						</div>
+					</div>
+					{% else %}
+					<div class="col-lg-6">
+						<div class="review_box">
+							<p>Por favor, <a href="{% url 'core:login' %}">faça login</a> para adicionar uma avaliação.</p>
+						</div>
+					</div>
+					{% endif %}
+				</div>
 			</div>
 		</div>
 	</div>
@@ -78,27 +189,24 @@
 			<div class="col-lg-6 text-center">
 				<div class="section-title">
 					<h1>Produtos Relacionados</h1>
+					<p>Produtos que você também pode gostar</p>
 				</div>
 			</div>
 		</div>
 		<div class="row">
 			{% for related in related_products %}
-			<div class="col-lg-3 col-md-6">
-				<div class="single-product">
-					<img class="img-fluid" src="{{ related.image.url }}" alt="{{ related.name }}">
-					<div class="product-details">
-						<h6>{{ related.name }}</h6>
+			<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
+				<div class="single-related-product d-flex">
+					<a href="{% url 'core:product_detail' related.id %}">
+						<img src="{{ related.image.url }}" alt="{{ related.name }}">
+					</a>
+					<div class="desc">
+						<a href="{% url 'core:product_detail' related.id %}" class="title">{{ related.name }}</a>
 						<div class="price">
 							<h6>${{ related.price }}</h6>
 							{% if related.old_price %}
 							<h6 class="l-through">${{ related.old_price }}</h6>
 							{% endif %}
-						</div>
-						<div class="prd-bottom">
-							<a href="{% url 'core:product_detail' related.id %}" class="social-info">
-								<span class="lnr lnr-move"></span>
-								<p class="hover-text">ver mais</p>
-							</a>
 						</div>
 					</div>
 				</div>

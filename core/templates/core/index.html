@@ -187,16 +187,13 @@
               <h6>{{ product.name }}</h6>
               <div class="price">
                 <h6>${{ product.price }}</h6>
-                {% if product.old_price %}
-                  <h6 class="l-through">${{ product.old_price }}</h6>
-                {% endif %}
               </div>
               <div class="prd-bottom">
                 <a href="" class="social-info">
                   <span class="lnr lnr-cart"></span>
                   <p class="hover-text">adicionar ao carrinho</p>
                 </a>
-                <a href="" class="social-info">
+                <a href="{% url 'core:product_detail' product.id %}" class="social-info">
                   <span class="lnr lnr-move"></span>
                   <p class="hover-text">ver mais</p>
                 </a>
@@ -235,16 +232,13 @@
               <h6>{{ product.name }}</h6>
               <div class="price">
                 <h6>${{ product.price }}</h6>
-                {% if product.old_price %}
-                  <h6 class="l-through">${{ product.old_price }}</h6>
-                {% endif %}
               </div>
               <div class="prd-bottom">
                 <a href="" class="social-info">
                   <span class="lnr lnr-cart"></span>
                   <p class="hover-text">adicionar ao carrinho</p>
                 </a>
-                <a href="" class="social-info">
+                <a href="{% url 'core:product_detail' product.id %}" class="social-info">
                   <span class="lnr lnr-move"></span>
                   <p class="hover-text">ver mais</p>
                 </a>

@@ -18,6 +18,10 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('register/', views.register_view, name='register'),
     path('social-auth/', include('social_django.urls', namespace='social')),
-    path('product/<int:id>/', views.product_detail, name='product_detail'),
+    path('product/<int:product_id>/', views.product_detail, name='product_detail'),
+    path('product/<int:product_id>/add/', views.add_to_cart, name='add_to_cart'),
+    path('product/<int:product_id>/review/', views.add_review, name='add_review'),
+    path('cart/update/<int:product_id>/', views.update_cart, name='update_cart'),
+    path('cart/remove/<int:product_id>/', views.remove_from_cart, name='remove_from_cart'),
 ] 
 

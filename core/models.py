@@ -1,13 +1,16 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.models import User
 
 # Product
 class Product(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=200)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     old_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    stock_quantity = models.PositiveIntegerField()
+    stock_quantity = models.PositiveIntegerField(default = 0)
     image = models.ImageField(upload_to='products/')
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, null=True, blank=True)
     specifications = models.TextField(blank=True)  # Para as especificações do produto
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -114,4 +117,35 @@ class SectionContent(models.Model):
 
     def __str__(self):
         return f"{self.get_section_display()} - {self.title}"
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name_plural = "Categories"
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.IntegerField(
+        validators=[
+            MinValueValidator(1, 'A avaliação deve ser no mínimo 1'),
+            MaxValueValidator(5, 'A avaliação deve ser no máximo 5')
+        ]
+    )
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        # Garante que um usuário só pode avaliar um produto uma vez
+        unique_together = ('product', 'user')
+
+    def __str__(self):
+        return f'{self.user.username} - {self.product.name} - {self.rating} estrelas'
 

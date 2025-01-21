@@ -19,8 +19,139 @@
     </div>
 </section>
 
-<!-- Conteúdo do Carrinho -->
+<!-- Área do Carrinho -->
 <section class="cart_area">
-    <!-- Seu conteúdo específico do carrinho aqui -->
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Produto</th>
+                            <th scope="col">Preço</th>
+                            <th scope="col">Quantidade</th>
+                            <th scope="col">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                        <tr>
+                            <td>
+                                <div class="media">
+                                    <div class="d-flex">
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="150">
+                                    </div>
+                                    <div class="media-body">
+                                        <p>{{ item.product.name }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <h5>${{ item.product.price }}</h5>
+                            </td>
+                            <td>
+                                <div class="product_count">
+                                    <form action="{% url 'core:update_cart' item.product.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" 
+                                               min="1" max="{{ item.product.stock_quantity }}"
+                                               class="input-text qty">
+                                        <button type="submit" class="btn btn-link p-0">
+                                            <i class="lnr lnr-sync"></i>
+                                        </button>
+                                    </form>
+                                    <form action="{% url 'core:remove_from_cart' item.product.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link text-danger p-0">
+                                            <i class="lnr lnr-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                            <td>
+                                <h5>${{ item.subtotal }}</h5>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                <p>Seu carrinho está vazio</p>
+                                <a href="{% url 'core:index' %}" class="primary-btn">Continuar Comprando</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        
+                        {% if cart_items %}
+                        <tr class="bottom_button">
+                            <td>
+                                <a class="gray_btn" href="{% url 'core:index' %}">Continuar Comprando</a>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="cupon_text d-flex align-items-center">
+                                    <input type="text" placeholder="Cupom de Desconto">
+                                    <a class="primary-btn" href="#">Aplicar</a>
+                                    <a class="gray_btn" href="#">Fechar Cupom</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <h5>Subtotal</h5>
+                            </td>
+                            <td>
+                                <h5>${{ total }}</h5>
+                            </td>
+                        </tr>
+                        <tr class="shipping_area">
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <h5>Frete</h5>
+                            </td>
+                            <td>
+                                <div class="shipping_box">
+                                    <ul class="list">
+                                        <li><a href="#">Taxa Fixa: $5.00</a></li>
+                                        <li><a href="#">Frete Grátis</a></li>
+                                        <li><a href="#">Taxa Fixa: $10.00</a></li>
+                                        <li class="active"><a href="#">Entrega Local: $2.00</a></li>
+                                    </ul>
+                                    <h6>Calcular Frete <i class="fa fa-caret-down" aria-hidden="true"></i></h6>
+                                    <select class="shipping_select">
+                                        <option value="1">Brasil</option>
+                                        <option value="2">Estados Unidos</option>
+                                        <option value="4">Canadá</option>
+                                    </select>
+                                    <select class="shipping_select">
+                                        <option value="1">Selecione o Estado</option>
+                                        <option value="2">São Paulo</option>
+                                        <option value="4">Rio de Janeiro</option>
+                                    </select>
+                                    <input type="text" placeholder="CEP">
+                                    <a class="gray_btn" href="#">Atualizar Detalhes</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="out_button_area">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="checkout_btn_inner d-flex align-items-center">
+                                    <a class="gray_btn" href="{% url 'core:index' %}">Continuar Comprando</a>
+                                    <a class="primary-btn" href="{% url 'core:checkout' %}">Finalizar Compra</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </section>
 {% endblock %}

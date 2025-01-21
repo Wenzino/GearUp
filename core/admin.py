@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Banner, Feature, Brand, SectionContent
+from .models import Product, Banner, Feature, Brand, SectionContent, Review
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -29,3 +29,9 @@ class SectionContentAdmin(admin.ModelAdmin):
     list_display = ['section', 'title', 'created_at']
     search_fields = ['title', 'description']
     filter_horizontal = ['products']
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ['user', 'product', 'rating', 'created_at']
+    list_filter = ['rating', 'created_at']
+    search_fields = ['user__username', 'product__name', 'comment']
