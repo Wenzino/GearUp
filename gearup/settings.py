@@ -174,3 +174,12 @@ LOGOUT_REDIRECT_URL = 'core:index'
 # Configurações de mídia
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Stripe settings
+STRIPE_PUBLIC_KEY = 'pk_test_51QfIq6Cm2tldO7wcDmetTIJhXmPF6ckbJc3st4VmxXgqnYqR5NS3wYnBdrhH3hoTm6NNmdvyqq86FETgKYNgR8kc00JiFEI2KB'
+STRIPE_SECRET_KEY = 'sk_test_51QfIq6Cm2tldO7wcr701fs29QTEVdR6jDlN6ZScTRzWplWS3uQt4RQlWr7YTEF3FiAE5LYwTb3mSz4tolIxa0f2P00tx847xxG'
+
+# PayPal settings
+PAYPAL_CLIENT_ID = 'AfV-JhO_zbkSUkWgzREfOsIXxLyT8SoKMpAEH_0YIYg0uGz5tL6mfe9Ezgfg2gkOrC3O9GFhPi1IxvqG'
+PAYPAL_CLIENT_SECRET = 'EG7oFKGH4qM8Vtka_deRywqTpJwWtx_l0NZN-IQ4qyVXVlpXysLlQUjYz1a2K4FjDz_qTb_kLSptMZ39'
+PAYPAL_MODE = 'sandbox'  # Use 'live' para produção

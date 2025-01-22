@@ -5,7 +5,19 @@ from django.contrib import messages
 from django.db.models import Avg
 from .models import Product, Banner, Feature, Brand, SectionContent, Review, Order, OrderItem
 from decimal import Decimal
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+import paypalrestsdk
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+# Configurar o PayPal
+paypalrestsdk.configure({
+    "mode": settings.PAYPAL_MODE,  # sandbox ou live
+    "client_id": settings.PAYPAL_CLIENT_ID,
+    "client_secret": settings.PAYPAL_CLIENT_SECRET
+})
 
 def index(request):
     context = {
@@ -57,7 +69,7 @@ def cart(request):
 def checkout(request):
     cart = request.session.get('cart', {})
     if not cart:
-        messages.warning(request, 'Seu carrinho está vazio!')
+        messages.warning(request, 'Your cart is empty!')
         return redirect('core:cart')
     
     cart_items = []
@@ -76,45 +88,42 @@ def checkout(request):
     shipping_cost = Decimal('5.00')  # Valor fixo por enquanto
     total = subtotal + shipping_cost
     
-    if request.method == 'POST':
-        # Criar pedido
-        order = Order.objects.create(
-            user=request.user,
-            status='pending',
-            payment_method=request.POST.get('payment_method'),
-            shipping_address=request.POST.get('address'),
-            shipping_city=request.POST.get('city'),
-            shipping_state=request.POST.get('state'),
-            shipping_zip=request.POST.get('zip'),
-            shipping_country=request.POST.get('country', 'Brasil'),
-            subtotal=subtotal,
-            shipping_cost=shipping_cost,
-            total=total
-        )
-        
-        # Criar itens do pedido
-        for item in cart_items:
-            OrderItem.objects.create(
-                order=order,
-                product=item['product'],
-                quantity=item['quantity'],
-                price=item['product'].price
-            )
-        
-        # Limpar carrinho
-        request.session['cart'] = {}
-        
-        messages.success(request, 'Pedido realizado com sucesso!')
-        return redirect('core:order_confirmation', order_id=order.id)
-    
     context = {
         'cart_items': cart_items,
         'subtotal': subtotal,
         'shipping_cost': shipping_cost,
-        'total': total
+        'total': total,
+        'stripe_public_key': settings.STRIPE_PUBLIC_KEY
     }
     
     return render(request, 'core/checkout.html', context)
+
+def calculate_total(cart):
+    total = 0
+    for product_id, quantity in cart.items():
+        product = get_object_or_404(Product, id=int(product_id))
+        total += product.price * quantity
+    return total
+
+
+@login_required
+def create_stripe_payment_intent(request):
+    try:
+        cart = request.session.get('cart', {})
+        total = calculate_total(cart)  # Você precisa implementar esta função
+        
+        # Criar PaymentIntent
+        intent = stripe.PaymentIntent.create(
+            amount=int(total * 100),  # Stripe trabalha com centavos
+            currency='usd',
+            metadata={'integration_check': 'accept_a_payment'}
+        )
+        
+        return JsonResponse({
+            'clientSecret': intent.client_secret
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=403)
 
 def contact(request):
     return render(request, 'core/contact.html')
@@ -284,3 +293,79 @@ def remove_from_cart(request, product_id):
             messages.success(request, f'{product.name} removido do carrinho!')
             
     return redirect('core:cart')
+
+@login_required
+def create_paypal_payment(request):
+    cart = request.session.get('cart', {})
+    total = calculate_total(cart)  # Use a função que você já implementou
+
+    payment = paypalrestsdk.Payment({
+        "intent": "sale",
+        "payer": {
+            "payment_method": "paypal"
+        },
+        "redirect_urls": {
+            "return_url": "http://localhost:8000/execute-paypal-payment/",
+            "cancel_url": "http://localhost:8000/cancel/"
+        },
+        "transactions": [{
+            "item_list": {
+                "items": [{
+                    "name": "Order Total",
+                    "sku": "item",
+                    "price": str(total),
+                    "currency": "USD",
+                    "quantity": 1
+                }]
+            },
+            "amount": {
+                "total": str(total),
+                "currency": "USD"
+            },
+            "description": "This is the payment description."
+        }]
+    })
+
+    if payment.create():
+        return JsonResponse({'paymentID': payment.id})
+    else:
+        return JsonResponse({'error': payment.error}, status=403)
+
+@login_required
+def execute_paypal_payment(request):
+    payment_id = request.GET.get('paymentId')
+    payer_id = request.GET.get('PayerID')
+
+    payment = paypalrestsdk.Payment.find(payment_id)
+
+    if payment.execute({"payer_id": payer_id}):
+        # Criar o pedido e os itens no banco de dados
+        cart = request.session.get('cart', {})
+        total = calculate_total(cart)  # Use a função que você já implementou
+
+        # Criar o pedido
+        order = Order.objects.create(
+            user=request.user,
+            total=total,
+            status='paid'  # ou o status que você preferir
+        )
+
+        # Criar itens do pedido
+        for product_id, quantity in cart.items():
+            product = get_object_or_404(Product, id=int(product_id))
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=quantity,
+                price=product.price
+            )
+
+        # Limpar o carrinho
+        request.session['cart'] = {}
+
+        messages.success(request, 'Pagamento realizado com sucesso!')
+        return redirect('core:order_confirmation', order_id=order.id)
+    else:
+        messages.error(request, 'Erro ao executar o pagamento.')
+        return redirect('core:cart')
+
