@@ -1,0 +1,17 @@
+
+asgiref==3.8.1
+dj-database-url==2.3.0
+Django==5.1.4
+jsonpointer==2.1
+paypalrestsdk==1.13.3
+pillow==11.1.0
+psycopg2-binary==2.9.10
+pyOpenSSL==25.0.0
+setuptools==75.1.0
+six==1.17.0
+sqlparse==0.5.3
+typing_extensions==4.12.2
+wheel==0.44.0
+django-countries==7.5.1
+requests==2.31.0 
+social-auth-app-django==5.0.0

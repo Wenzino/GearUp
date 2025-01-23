@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth import logout
 from django.contrib import messages
 from django.db.models import Avg
 from .models import Product, Banner, Feature, Brand, SectionContent, Review, Order, OrderItem
@@ -9,6 +9,13 @@ import stripe
 from django.conf import settings
 from django.http import JsonResponse
 import paypalrestsdk
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+import json
+from django.urls import reverse
+from django.utils.translation import get_language_from_request
+from django_countries import countries
+import requests
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -85,7 +92,7 @@ def checkout(request):
             'subtotal': item_subtotal
         })
     
-    shipping_cost = Decimal('5.00')  # Valor fixo por enquanto
+    shipping_cost = Decimal('2.00')  # Valor fixo por enquanto
     total = subtotal + shipping_cost
     
     context = {
@@ -93,7 +100,9 @@ def checkout(request):
         'subtotal': subtotal,
         'shipping_cost': shipping_cost,
         'total': total,
-        'stripe_public_key': settings.STRIPE_PUBLIC_KEY
+        'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
+        'countries': countries,
+        'default_country': request.META.get('HTTP_CF_IPCOUNTRY') or None
     }
     
     return render(request, 'core/checkout.html', context)
@@ -115,7 +124,7 @@ def create_stripe_payment_intent(request):
         # Criar PaymentIntent
         intent = stripe.PaymentIntent.create(
             amount=int(total * 100),  # Stripe trabalha com centavos
-            currency='usd',
+            currency='eur',
             metadata={'integration_check': 'accept_a_payment'}
         )
         
@@ -368,4 +377,109 @@ def execute_paypal_payment(request):
     else:
         messages.error(request, 'Erro ao executar o pagamento.')
         return redirect('core:cart')
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@login_required
+def process_payment(request):
+    try:
+        data = json.loads(request.body)
+        payment_method_id = data.get('payment_method_id')
+        
+        # Verifica se o país foi enviado
+        shipping_country = data.get('country')
+        if not shipping_country:
+            return JsonResponse({
+                'error': 'País é obrigatório'
+            }, status=400)
+
+        # Calcular total do carrinho
+        cart = request.session.get('cart', {})
+        subtotal = Decimal('0.00')
+        for product_id, quantity in cart.items():
+            product = get_object_or_404(Product, id=int(product_id))
+            subtotal += product.price * quantity
+        shipping_cost = Decimal('10.00')  # Exemplo fixo
+        total = subtotal + shipping_cost
+
+        # Criar pedido
+        order = Order.objects.create(
+            user=request.user,
+            status='pending',
+            shipping_address=data.get('address'),
+            shipping_city=data.get('city'),
+            shipping_state=data.get('state'),
+            shipping_zip=data.get('postal_code'),
+            shipping_country=shipping_country,  # Usa o país do formulário
+            subtotal=subtotal,
+            shipping_cost=shipping_cost,
+            total=total
+        )
+
+        # Criar itens do pedido
+        for product_id, quantity in cart.items():
+            product = get_object_or_404(Product, id=int(product_id))
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=quantity,
+                price=product.price
+            )
+
+        # Processar pagamento com Stripe
+        try:
+            payment_intent = stripe.PaymentIntent.create(
+                amount=int(total * 100),  # Stripe usa centavos
+                currency='usd',
+                payment_method=payment_method_id,
+                confirmation_method='manual',
+                confirm=True,
+                return_url=request.build_absolute_uri(reverse('core:payment_success')),
+            )
+
+            if payment_intent.status == 'succeeded':
+                # Atualizar pedido
+                order.status = 'paid'
+                order.payment_id = payment_intent.id
+                order.save()
+
+                # Limpar carrinho
+                request.session['cart'] = {}
+                request.session.modified = True
+
+                return JsonResponse({
+                    'success': True,
+                    'redirect_url': reverse('core:payment_success')
+                })
+            elif payment_intent.status == 'requires_action':
+                return JsonResponse({
+                    'requires_action': True,
+                    'payment_intent_client_secret': payment_intent.client_secret
+                })
+            else:
+                order.status = 'failed'
+                order.save()
+                return JsonResponse({
+                    'error': 'Pagamento falhou'
+                }, status=400)
+
+        except stripe.error.StripeError as e:
+            order.status = 'failed'
+            order.save()
+            return JsonResponse({
+                'error': str(e)
+            }, status=400)
+
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=400)
+
+@login_required
+def payment_success(request):
+    return render(request, 'core/payment_success.html')
+
+@login_required
+def payment_failed(request):
+    return render(request, 'core/payment_failed.html')
 

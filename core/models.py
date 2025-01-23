@@ -21,42 +21,21 @@ class Product(models.Model):
     class Meta:
         ordering = ['-created_at']  # Ordena por padrão do mais recente para o mais antigo
 
-# User
-class User(models.Model):
-    user_id = models.IntegerField(primary_key=True)
-    username = models.CharField(max_length=255)
-    email = models.EmailField()
-    password = models.CharField(max_length=255)
-    first_name = models.CharField(max_length=45)
-    last_name = models.CharField(max_length=60)
-    is_staff = models.BooleanField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    update_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.username
-    
 # Order
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pendente'),
         ('paid', 'Pago'),
+        ('failed', 'Falhou'),
         ('shipped', 'Enviado'),
         ('delivered', 'Entregue'),
         ('cancelled', 'Cancelado'),
     ]
 
-    PAYMENT_METHOD_CHOICES = [
-        ('credit_card', 'Cartão de Crédito'),
-        ('debit_card', 'Cartão de Débito'),
-        ('pix', 'PIX'),
-        ('bank_slip', 'Boleto'),
-    ]
-
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
-    
+    payment_id = models.CharField(max_length=150, blank=True, null=True)
+
     # Informações de envio
     shipping_address = models.TextField()
     shipping_city = models.CharField(max_length=100)
@@ -189,41 +168,3 @@ class Review(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - {self.product.name} - {self.rating} estrelas'
-
-class Checkout(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Pendente'),
-        ('paid', 'Pago'),
-        ('shipped', 'Enviado'),
-        ('delivered', 'Entregue'),
-        ('cancelled', 'Cancelado'),
-    ]
-
-    PAYMENT_METHOD_CHOICES = [
-        ('credit_card', 'Cartão de Crédito'),
-        ('debit_card', 'Cartão de Débito'),
-        ('pix', 'PIX'),
-        ('bank_slip', 'Boleto'),
-    ]
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    order = models.OneToOneField(Order, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
-    shipping_address = models.TextField()
-    shipping_city = models.CharField(max_length=100)
-    shipping_state = models.CharField(max_length=100)
-    shipping_zip = models.CharField(max_length=10)
-    shipping_country = models.CharField(max_length=100)
-    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    tracking_number = models.CharField(max_length=100, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Checkout #{self.id} - {self.user.username}"
-
-    class Meta:
-        ordering = ['-created_at']
-
