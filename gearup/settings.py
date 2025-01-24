@@ -181,8 +181,8 @@ STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 
 # PayPal settings
-PAYPAL_CLIENT_ID = 'AfV-JhO_zbkSUkWgzREfOsIXxLyT8SoKMpAEH_0YIYg0uGz5tL6mfe9Ezgfg2gkOrC3O9GFhPi1IxvqG'
-PAYPAL_CLIENT_SECRET = 'EG7oFKGH4qM8Vtka_deRywqTpJwWtx_l0NZN-IQ4qyVXVlpXysLlQUjYz1a2K4FjDz_qTb_kLSptMZ39'
+PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
+PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET')
 PAYPAL_MODE = 'sandbox'  # Use 'live' para produção
 
 # Google Maps API Key

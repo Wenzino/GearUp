@@ -177,29 +177,31 @@
         <!-- single product -->
         {% for product in latest_products %}
         <div class="col-lg-3 col-md-6">
-          <div class="single-product">
-            <img
-              class="img-fluid"
-              src="{{ product.image.url }}"
-              alt="{{ product.name }}"
-            />
-            <div class="product-details">
-              <h6>{{ product.name }}</h6>
-              <div class="price">
-                <h6>${{ product.price }}</h6>
-              </div>
-              <div class="prd-bottom">
-                <a href="" class="social-info">
-                  <span class="lnr lnr-cart"></span>
-                  <p class="hover-text">adic. ao carrinho</p>
-                </a>
-                <a href="{% url 'core:product_detail' product.id %}" class="social-info">
-                  <span class="lnr lnr-move"></span>
-                  <p class="hover-text">ver mais</p>
-                </a>
+          <a href="{% url 'core:product_detail' product.id %}" style="text-decoration: none; color:black;">
+            <div class="single-product" >
+              <img
+                class="img-fluid"
+                src="{{ product.image.url }}"
+                alt="{{ product.name }}"
+              />
+              <div class="product-details">
+                <h6>{{ product.name }}</h6>
+                <div class="price">
+                  <h6>${{ product.price }}</h6>
+                </div>
+                <div class="prd-bottom">
+                  <a href="" class="social-info">
+                    <span class="lnr lnr-cart"></span>
+                    <p class="hover-text">adic. ao carrinho</p>
+                  </a>
+                  <a href="{% url 'core:product_detail' product.id %}" class="social-info">
+                    <span class="lnr lnr-move"></span>
+                    <p class="hover-text">ver mais</p>
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
+          </a>
         </div>
         {% endfor %}
       </div>
@@ -222,29 +224,30 @@
         <!-- single product -->
         {% for product in coming_products %}
         <div class="col-lg-3 col-md-6">
-          <div class="single-product">
-            <img
-              class="img-fluid"
-              src="{{ product.image.url }}"
-              alt="{{ product.name }}"
-            />
-            <div class="product-details">
-              <h6>{{ product.name }}</h6>
-              <div class="price">
-                <h6>${{ product.price }}</h6>
+          <a href="{% url 'core:product_detail' product.id %}" style="text-decoration: none; color: black;">
+            <div class="single-product">
+              <img
+                class="img-fluid"
+                src="{{ product.image.url }}"
+                alt="{{ product.name }}"
+              />
+              <div class="product-details">
+                <h6>{{ product.name }}</h6>
+                <div class="price">
+                  <h6>${{ product.price }}</h6>
+                </div>
+                <div class="prd-bottom">
+                  <a href="" class="social-info">
+                    <span class="lnr lnr-cart"></span>
+                    <p class="hover-text">adic. ao carrinho</p>
+                  </a>
+                  <a href="{% url 'core:product_detail' product.id %}" class="social-info">
+                    <span class="lnr lnr-move"></span>
+                    <p class="hover-text">ver mais</p>
+                  </a>
+                </div>
               </div>
-              <div class="prd-bottom">
-                <a href="" class="social-info">
-                  <span class="lnr lnr-cart"></span>
-                  <p class="hover-text">adic. ao carrinho</p>
-                </a>
-                <a href="{% url 'core:product_detail' product.id %}" class="social-info">
-                  <span class="lnr lnr-move"></span>
-                  <p class="hover-text">ver mais</p>
-                </a>
-              </div>
-            </div>
-          </div>
+          </a>
         </div>
         {% endfor %}
       </div>

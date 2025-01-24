@@ -83,6 +83,7 @@
 {% block extra_js %}
 <script src="https://js.stripe.com/v3/"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=EUR"></script>
 <script>
     // Inicializar Stripe
     const stripe = Stripe('{{ stripe_public_key }}');
@@ -125,84 +126,128 @@
         submitButton.disabled = true;
         
         try {
-            // Criar PaymentMethod com Stripe primeiro
-            const { paymentMethod, error } = await stripe.createPaymentMethod({
-                type: 'card',
-                card: card,
-                billing_details: {
-                    name: `${form.first_name.value} ${form.last_name.value}`,
-                    email: form.email.value,
-                    address: {
-                        line1: form.address.value,
-                        city: form.city.value,
-                        state: form.state.value,
-                        postal_code: form.postal_code.value,
-                        country: document.getElementById('countryInput').value
-                    }
+            const selectedPaymentMethod = document.getElementById('selected_payment_method').value;
+            
+            if (selectedPaymentMethod === 'paypal') {
+                // Coletar dados do formulário
+                const formData = {
+                    first_name: form.querySelector('[name="first_name"]').value,
+                    last_name: form.querySelector('[name="last_name"]').value,
+                    email: form.querySelector('[name="email"]').value,
+                    address: form.querySelector('[name="address"]').value,
+                    city: form.querySelector('[name="city"]').value,
+                    state: form.querySelector('[name="state"]').value,
+                    postal_code: form.querySelector('[name="postal_code"]').value,
+                    country: document.getElementById('countryInput').value
+                };
+
+                // Verificar se todos os campos obrigatórios estão preenchidos
+                if (!formData.first_name || !formData.last_name || !formData.email || 
+                    !formData.address || !formData.city || !formData.state || 
+                    !formData.postal_code || !formData.country) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    submitButton.disabled = false;
+                    return;
                 }
-            });
 
-            if (error) {
-                throw new Error(error.message);
-            }
+                const response = await fetch('{% url "core:create_paypal_payment" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(formData)
+                });
 
-            // Pegar o valor do país selecionado
-            const countryCode = document.getElementById('countryInput').value;
-            
-            // Criar objeto com todos os dados do formulário
-            const formData = {
-                payment_method_id: paymentMethod.id, // Usar o ID do PaymentMethod criado
-                country: countryCode,
-                address: form.address.value,
-                city: form.city.value,
-                state: form.state.value,
-                postal_code: form.postal_code.value,
-                email: form.email.value,
-                first_name: form.first_name.value,
-                last_name: form.last_name.value
-            };
-
-            // Enviar para o servidor
-            const response = await fetch('/process-payment/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const result = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(result.error || 'Erro ao processar pagamento');
-            }
-
-            if (result.success) {
-                // Redirecionar para página de sucesso
-                window.location.href = result.redirect_url;
-            } else if (result.requires_action) {
-                // Lidar com autenticação adicional se necessário
-                const { error: confirmError } = await stripe.confirmCardPayment(
-                    result.payment_intent_client_secret
-                );
-
-                if (confirmError) {
-                    throw new Error(confirmError.message);
+                const data = await response.json();
+                
+                if (data.success && data.approval_url) {
+                    window.location.href = data.approval_url;
                 } else {
-                    window.location.href = '/checkout/success/';
+                    throw new Error(data.error || 'Erro ao criar pagamento PayPal');
+                }
+            } else if (selectedPaymentMethod === 'credit_card') {
+                // Código existente para Stripe
+                const { paymentMethod, error } = await stripe.createPaymentMethod({
+                    type: 'card',
+                    card: card,
+                    billing_details: {
+                        name: `${form.first_name.value} ${form.last_name.value}`,
+                        email: form.email.value,
+                        address: {
+                            line1: form.address.value,
+                            city: form.city.value,
+                            state: form.state.value,
+                            postal_code: form.postal_code.value,
+                            country: document.getElementById('countryInput').value
+                        }
+                    }
+                });
+
+                if (error) {
+                    throw new Error(error.message);
+                }
+
+                // Pegar o valor do país selecionado
+                const countryCode = document.getElementById('countryInput').value;
+                
+                // Criar objeto com todos os dados do formulário
+                const formData = {
+                    payment_method_id: paymentMethod.id, // Usar o ID do PaymentMethod criado
+                    country: countryCode,
+                    address: form.address.value,
+                    city: form.city.value,
+                    state: form.state.value,
+                    postal_code: form.postal_code.value,
+                    email: form.email.value,
+                    first_name: form.first_name.value,
+                    last_name: form.last_name.value
+                };
+
+                // Enviar para o servidor
+                const response = await fetch('/process-payment/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Erro ao processar pagamento');
+                }
+
+                if (result.success) {
+                    // Redirecionar para página de sucesso
+                    window.location.href = result.redirect_url;
+                } else if (result.requires_action) {
+                    // Lidar com autenticação adicional se necessário
+                    const { error: confirmError } = await stripe.confirmCardPayment(
+                        result.payment_intent_client_secret
+                    );
+
+                    if (confirmError) {
+                        throw new Error(confirmError.message);
+                    } else {
+                        window.location.href = '/checkout/success/';
+                    }
                 }
             }
 
         } catch (error) {
-            console.error('Erro detalhado:', error);
-            const errorElement = document.getElementById('card-errors');
-            errorElement.textContent = error.message;
+            console.error('Erro:', error);
+            const errorElement = document.getElementById('payment-errors');
+            if (errorElement) {
+                errorElement.textContent = error.message;
+            }
             submitButton.disabled = false;
         }
     }
 
-    // Função auxiliar para pegar o cookie do CSRF
+    // Função auxiliar para obter o cookie CSRF
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -216,6 +261,57 @@
             }
         }
         return cookieValue;
+    }
+
+    // Função para processar pagamento PayPal
+    async function handlePayPalPayment() {
+        try {
+            // Validar formulário antes de prosseguir
+            const form = document.querySelector('.contact_form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const formData = {
+                first_name: form.first_name.value,
+                last_name: form.last_name.value,
+                email: form.email.value,
+                address: form.address.value,
+                city: form.city.value,
+                state: form.state.value,
+                postal_code: form.postal_code.value,
+                country: document.getElementById('countryInput').value
+            };
+
+            const response = await fetch('{% url "core:create_paypal_payment" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.approval_url) {
+                window.location.href = data.approval_url;
+            } else {
+                throw new Error(data.error || 'Erro ao criar pagamento PayPal');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            const errorElement = document.getElementById('payment-errors');
+            if (errorElement) {
+                errorElement.textContent = error.message;
+            }
+            // Reativar o botão de submit
+            const submitButton = document.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
+        }
     }
 
     // Configurar manipuladores de eventos quando a página carregar
@@ -234,7 +330,7 @@
                 // Adicionar classe active ao botão selecionado
                 this.classList.add('active');
 
-                // Mostrar/ocultar elemento do cartão baseado no método selecionado
+                // Mostrar/ocultar elementos baseado no método selecionado
                 const cardElement = document.getElementById('card-element-container');
                 if (method === 'credit_card') {
                     cardElement.style.display = 'block';

@@ -101,6 +101,7 @@ def checkout(request):
         'shipping_cost': shipping_cost,
         'total': total,
         'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
+        'paypal_client_id': settings.PAYPAL_CLIENT_ID,
         'countries': countries,
         'default_country': request.META.get('HTTP_CF_IPCOUNTRY') or None
     }
@@ -305,78 +306,148 @@ def remove_from_cart(request, product_id):
 
 @login_required
 def create_paypal_payment(request):
-    cart = request.session.get('cart', {})
-    total = calculate_total(cart)  # Use a função que você já implementou
+    try:
+        data = json.loads(request.body) if request.body else {}
+        cart = request.session.get('cart', {})
+        cart_items = []
+        subtotal = Decimal('0.00')
+        
+        # Calcula o total e prepara os itens
+        for product_id, quantity in cart.items():
+            product = get_object_or_404(Product, id=int(product_id))
+            item_total = product.price * quantity
+            subtotal += item_total
+            
+            cart_items.append({
+                "name": product.name,
+                "sku": f"PROD-{product.id}",
+                "price": str(product.price),
+                "currency": "EUR",
+                "quantity": quantity
+            })
 
-    payment = paypalrestsdk.Payment({
-        "intent": "sale",
-        "payer": {
-            "payment_method": "paypal"
-        },
-        "redirect_urls": {
-            "return_url": "http://localhost:8000/execute-paypal-payment/",
-            "cancel_url": "http://localhost:8000/cancel/"
-        },
-        "transactions": [{
-            "item_list": {
-                "items": [{
-                    "name": "Order Total",
-                    "sku": "item",
-                    "price": str(total),
-                    "currency": "USD",
-                    "quantity": 1
-                }]
-            },
-            "amount": {
-                "total": str(total),
-                "currency": "USD"
-            },
-            "description": "This is the payment description."
-        }]
-    })
+        shipping_cost = Decimal('10.00')
+        total = subtotal + shipping_cost
 
-    if payment.create():
-        return JsonResponse({'paymentID': payment.id})
-    else:
-        return JsonResponse({'error': payment.error}, status=403)
+        # Criar o pagamento PayPal com informações de envio
+        payment = paypalrestsdk.Payment({
+            "intent": "sale",
+            "payer": {
+                "payment_method": "paypal",
+            },
+            "redirect_urls": {
+                "return_url": request.build_absolute_uri(reverse('core:execute_paypal_payment')),
+                "cancel_url": request.build_absolute_uri(reverse('core:payment_failed'))
+            },
+            "transactions": [{
+                "item_list": {
+                    "items": cart_items,
+                    "shipping_address": {
+                        "recipient_name": f"{data.get('first_name', '')} {data.get('last_name', '')}",
+                        "line1": data.get('address', ''),
+                        "city": data.get('city', ''),
+                        "state": data.get('state', ''),
+                        "postal_code": data.get('postal_code', ''),
+                        "country_code": data.get('country', ''),
+                    } if all(data.get(k) for k in ['address', 'city', 'state', 'postal_code', 'country']) else None
+                },
+                "amount": {
+                    "total": str(total),
+                    "currency": "EUR",
+                    "details": {
+                        "subtotal": str(subtotal),
+                        "shipping": str(shipping_cost)
+                    }
+                },
+                "description": "Compra na Gear Up Store"
+            }]
+        })
+
+        if payment.create():
+            request.session['paypal_payment_id'] = payment.id
+            
+            # Encontra o link de aprovação
+            approval_url = next((link.href for link in payment.links if link.rel == "approval_url"), None)
+            
+            if approval_url:
+                return JsonResponse({
+                    'success': True,
+                    'approval_url': approval_url
+                })
+            
+        return JsonResponse({
+            'success': False,
+            'error': 'Falha ao criar pagamento PayPal'
+        }, status=400)
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
 
 @login_required
 def execute_paypal_payment(request):
-    payment_id = request.GET.get('paymentId')
+    payment_id = request.session.get('paypal_payment_id')
     payer_id = request.GET.get('PayerID')
+    
+    if not payment_id or not payer_id:
+        messages.error(request, 'Informações de pagamento inválidas.')
+        return redirect('core:payment_failed')
 
     payment = paypalrestsdk.Payment.find(payment_id)
 
     if payment.execute({"payer_id": payer_id}):
-        # Criar o pedido e os itens no banco de dados
-        cart = request.session.get('cart', {})
-        total = calculate_total(cart)  # Use a função que você já implementou
+        try:
+            # Recupera informações do carrinho
+            cart = request.session.get('cart', {})
+            subtotal = Decimal('0.00')
+            
+            for product_id, quantity in cart.items():
+                product = get_object_or_404(Product, id=int(product_id))
+                subtotal += product.price * quantity
 
-        # Criar o pedido
-        order = Order.objects.create(
-            user=request.user,
-            total=total,
-            status='paid'  # ou o status que você preferir
-        )
+            shipping_cost = Decimal('10.00')
+            total = subtotal + shipping_cost
 
-        # Criar itens do pedido
-        for product_id, quantity in cart.items():
-            product = get_object_or_404(Product, id=int(product_id))
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                quantity=quantity,
-                price=product.price
+            # Cria o pedido
+            order = Order.objects.create(
+                user=request.user,
+                status='paid',
+                payment_id=payment_id,
+                shipping_address=payment.transactions[0].item_list.shipping_address.line1 if hasattr(payment.transactions[0], 'item_list') and hasattr(payment.transactions[0].item_list, 'shipping_address') else '',
+                shipping_city=payment.transactions[0].item_list.shipping_address.city if hasattr(payment.transactions[0], 'item_list') and hasattr(payment.transactions[0].item_list, 'shipping_address') else '',
+                shipping_state=payment.transactions[0].item_list.shipping_address.state if hasattr(payment.transactions[0], 'item_list') and hasattr(payment.transactions[0].item_list, 'shipping_address') else '',
+                shipping_zip=payment.transactions[0].item_list.shipping_address.postal_code if hasattr(payment.transactions[0], 'item_list') and hasattr(payment.transactions[0].item_list, 'shipping_address') else '',
+                shipping_country=payment.transactions[0].item_list.shipping_address.country_code if hasattr(payment.transactions[0], 'item_list') and hasattr(payment.transactions[0].item_list, 'shipping_address') else '',
+                subtotal=subtotal,
+                shipping_cost=shipping_cost,
+                total=total
             )
 
-        # Limpar o carrinho
-        request.session['cart'] = {}
+            # Cria os itens do pedido
+            for product_id, quantity in cart.items():
+                product = get_object_or_404(Product, id=int(product_id))
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=quantity,
+                    price=product.price
+                )
 
-        messages.success(request, 'Pagamento realizado com sucesso!')
-        return redirect('core:order_confirmation', order_id=order.id)
+            # Limpa o carrinho e a sessão do PayPal
+            request.session['cart'] = {}
+            del request.session['paypal_payment_id']
+            
+            messages.success(request, 'Pagamento realizado com sucesso!')
+            return redirect('core:payment_success')
+
+        except Exception as e:
+            messages.error(request, f'Erro ao processar o pedido: {str(e)}')
+            return redirect('core:payment_failed')
     else:
         messages.error(request, 'Erro ao executar o pagamento.')
-        return redirect('core:cart')
+        return redirect('core:payment_failed')
 
 @csrf_exempt
 @require_http_methods(["POST"])
