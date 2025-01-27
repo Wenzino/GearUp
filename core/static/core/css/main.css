@@ -35,10 +35,11 @@
       padding-top: 80px; } }
 
 .section_gap_bottom {
-  padding-bottom: 100px; }
+  padding-bottom: 100px; 
+  margin-top: 30px; }
   @media (max-width: 991px) {
     .section_gap_bottom {
-      padding-bottom: 80px; } }
+      padding-bottom: 80px; }}
 
 .gray-bg {
   background: #f9f9ff; }

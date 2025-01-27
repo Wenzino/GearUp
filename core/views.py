@@ -115,7 +115,6 @@ def calculate_total(cart):
         total += product.price * quantity
     return total
 
-
 @login_required
 def create_stripe_payment_intent(request):
     try:
