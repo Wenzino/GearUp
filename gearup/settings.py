@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-#)4-4x6flxps)jzh9#$%dh=07sj7#82vkex1z@7^d2@n3brzvp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["gearup-0tx7.onrender.com"]
+ALLOWED_HOSTS = ["gearup-0tx7.onrender.com", 'gearup-staging.onrender.com']
 
 
 # Application definition
