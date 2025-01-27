@@ -1,6 +1,5 @@
 from django.urls import path, include
 from . import views
-
 app_name = 'core'
 
 urlpatterns = [
@@ -25,5 +24,9 @@ urlpatterns = [
     path('cart/remove/<int:product_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('create-payment-intent/', views.create_stripe_payment_intent, name='create_payment_intent'),
     path('create-paypal-payment/', views.create_paypal_payment, name='create_paypal_payment'),
+    path('execute-paypal-payment/', views.execute_paypal_payment, name='execute_paypal_payment'),
+    path('process-payment/', views.process_payment, name='process_payment'),
+    path('checkout/success/', views.payment_success, name='payment_success'),
+    path('checkout/failed/', views.payment_failed, name='payment_failed'),
 ] 
 

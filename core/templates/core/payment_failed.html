@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Falha no Pagamento</h1>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section_gap">
+    <div class="container">
+        <div class="text-center">
+            <h2>Ops! Algo deu errado.</h2>
+            <p>Houve um problema ao processar seu pagamento. Por favor, tente novamente.</p>
+            <a href="{% url 'core:checkout' %}" class="primary-btn">Tentar novamente</a>
+        </div>
+    </div>
+</section>
+{% endblock %} 

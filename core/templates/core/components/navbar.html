@@ -19,7 +19,8 @@
         aria-haspopup="true"
         aria-expanded="false"
       >
-        <i class="fa fa-user"></i> {{ user.username }}
+        {{ user.username }}
+        <i class="fa fa-user"></i> 
       </a>
       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
         <a class="dropdown-item" href="{% url 'core:profile' %}">Meu Perfil</a>

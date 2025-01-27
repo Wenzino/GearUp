@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Pagamento Confirmado</h1>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section_gap">
+    <div class="container">
+        <div class="text-center">
+            <h2>Obrigado pela sua compra!</h2>
+            <p>Seu pedido foi confirmado e será processado em breve.</p>
+            <a href="{% url 'core:index' %}" class="primary-btn">Voltar para a loja</a>
+        </div>
+    </div>
+</section>
+{% endblock %} 

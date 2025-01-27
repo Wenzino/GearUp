@@ -6,6 +6,387 @@
 {% block extra_css %}
 <!-- Adicione o CSS customizado -->
 <link rel="stylesheet" href="{% static 'core/css/custom.css' %}">
+
+<style>
+    .custom-dropdown {
+        position: relative;
+        width: 45%;
+    }
+
+    .dropdown-toggle {
+        width: 100%;
+        height: 40px;
+        padding: 8px 16px;
+        background: white;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .dropdown-toggle:hover {
+        border-color: #80bdff;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+        background: white;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        margin-top: 4px;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        padding: 8px 16px;
+        cursor: pointer;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Estilização do scrollbar */
+    .dropdown-menu::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .dropdown-menu::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .dropdown-menu::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .dropdown-menu::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=EUR"></script>
+<script>
+    // Inicializar Stripe
+    const stripe = Stripe('{{ stripe_public_key }}');
+    let elements;
+    let card;
+    let paymentForm;
+
+    // Função para configurar o Stripe Elements
+    async function initializeStripe() {
+        elements = stripe.elements();
+        card = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: '#32325d',
+                }
+            }
+        });
+
+        // Montar o elemento do cartão
+        card.mount('#card-element');
+
+        // Lidar com erros de validação em tempo real
+        card.addEventListener('change', function(event) {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+    }
+
+    // Função para processar o pagamento
+    async function handlePayment(e) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        
+        try {
+            const selectedPaymentMethod = document.getElementById('selected_payment_method').value;
+            
+            if (selectedPaymentMethod === 'paypal') {
+                // Coletar dados do formulário
+                const formData = {
+                    first_name: form.querySelector('[name="first_name"]').value,
+                    last_name: form.querySelector('[name="last_name"]').value,
+                    email: form.querySelector('[name="email"]').value,
+                    address: form.querySelector('[name="address"]').value,
+                    city: form.querySelector('[name="city"]').value,
+                    state: form.querySelector('[name="state"]').value,
+                    postal_code: form.querySelector('[name="postal_code"]').value,
+                    country: document.getElementById('countryInput').value
+                };
+
+                // Verificar se todos os campos obrigatórios estão preenchidos
+                if (!formData.first_name || !formData.last_name || !formData.email || 
+                    !formData.address || !formData.city || !formData.state || 
+                    !formData.postal_code || !formData.country) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    submitButton.disabled = false;
+                    return;
+                }
+
+                const response = await fetch('{% url "core:create_paypal_payment" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.approval_url) {
+                    window.location.href = data.approval_url;
+                } else {
+                    throw new Error(data.error || 'Erro ao criar pagamento PayPal');
+                }
+            } else if (selectedPaymentMethod === 'credit_card') {
+                // Código existente para Stripe
+                const { paymentMethod, error } = await stripe.createPaymentMethod({
+                    type: 'card',
+                    card: card,
+                    billing_details: {
+                        name: `${form.first_name.value} ${form.last_name.value}`,
+                        email: form.email.value,
+                        address: {
+                            line1: form.address.value,
+                            city: form.city.value,
+                            state: form.state.value,
+                            postal_code: form.postal_code.value,
+                            country: document.getElementById('countryInput').value
+                        }
+                    }
+                });
+
+                if (error) {
+                    throw new Error(error.message);
+                }
+
+                // Pegar o valor do país selecionado
+                const countryCode = document.getElementById('countryInput').value;
+                
+                // Criar objeto com todos os dados do formulário
+                const formData = {
+                    payment_method_id: paymentMethod.id, // Usar o ID do PaymentMethod criado
+                    country: countryCode,
+                    address: form.address.value,
+                    city: form.city.value,
+                    state: form.state.value,
+                    postal_code: form.postal_code.value,
+                    email: form.email.value,
+                    first_name: form.first_name.value,
+                    last_name: form.last_name.value
+                };
+
+                // Enviar para o servidor
+                const response = await fetch('/process-payment/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Erro ao processar pagamento');
+                }
+
+                if (result.success) {
+                    // Redirecionar para página de sucesso
+                    window.location.href = result.redirect_url;
+                } else if (result.requires_action) {
+                    // Lidar com autenticação adicional se necessário
+                    const { error: confirmError } = await stripe.confirmCardPayment(
+                        result.payment_intent_client_secret
+                    );
+
+                    if (confirmError) {
+                        throw new Error(confirmError.message);
+                    } else {
+                        window.location.href = '/checkout/success/';
+                    }
+                }
+            }
+
+        } catch (error) {
+            console.error('Erro:', error);
+            const errorElement = document.getElementById('payment-errors');
+            if (errorElement) {
+                errorElement.textContent = error.message;
+            }
+            submitButton.disabled = false;
+        }
+    }
+
+    // Função auxiliar para obter o cookie CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Função para processar pagamento PayPal
+    async function handlePayPalPayment() {
+        try {
+            // Validar formulário antes de prosseguir
+            const form = document.querySelector('.contact_form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const formData = {
+                first_name: form.first_name.value,
+                last_name: form.last_name.value,
+                email: form.email.value,
+                address: form.address.value,
+                city: form.city.value,
+                state: form.state.value,
+                postal_code: form.postal_code.value,
+                country: document.getElementById('countryInput').value
+            };
+
+            const response = await fetch('{% url "core:create_paypal_payment" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.approval_url) {
+                window.location.href = data.approval_url;
+            } else {
+                throw new Error(data.error || 'Erro ao criar pagamento PayPal');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            const errorElement = document.getElementById('payment-errors');
+            if (errorElement) {
+                errorElement.textContent = error.message;
+            }
+            // Reativar o botão de submit
+            const submitButton = document.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
+        }
+    }
+
+    // Configurar manipuladores de eventos quando a página carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        paymentForm = document.querySelector('.contact_form');
+        paymentForm.addEventListener('submit', handlePayment);
+
+        const paymentMethods = document.querySelectorAll('.payment-method-btn');
+        paymentMethods.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const method = this.dataset.method;
+                document.getElementById('selected_payment_method').value = method;
+                
+                // Remover classe active de todos os botões
+                paymentMethods.forEach(b => b.classList.remove('active'));
+                // Adicionar classe active ao botão selecionado
+                this.classList.add('active');
+
+                // Mostrar/ocultar elementos baseado no método selecionado
+                const cardElement = document.getElementById('card-element-container');
+                if (method === 'credit_card') {
+                    cardElement.style.display = 'block';
+                    if (!card) {
+                        initializeStripe();
+                    }
+                } else {
+                    cardElement.style.display = 'none';
+                }
+            });
+        });
+
+        // Inicializar Stripe se cartão de crédito for o método padrão
+        if (document.getElementById('selected_payment_method').value === 'credit_card') {
+            initializeStripe();
+        }
+    });
+
+    function toggleDropdown() {
+        const dropdown = document.getElementById('countryDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    function selectCountry(code, name) {
+        document.getElementById('selectedCountry').textContent = name;
+        document.getElementById('countryInput').value = code;
+        document.getElementById('countryDropdown').classList.remove('show');
+        
+        // Adicionar validação visual
+        const dropdown = document.querySelector('.custom-dropdown');
+        dropdown.classList.add('validated');
+    }
+
+    // Adicionar validação antes do submit
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const countryInput = document.getElementById('countryInput');
+        if (!countryInput.value) {
+            e.preventDefault();
+            alert('Por favor, selecione um país');
+            return false;
+        }
+    });
+
+    // Fechar dropdown quando clicar fora
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropdown-toggle') && 
+            !event.target.matches('.dropdown-toggle *')) {
+            const dropdowns = document.getElementsByClassName('dropdown-menu');
+            for (let dropdown of dropdowns) {
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+</script>
 {% endblock %}
 
 {% block content %}
@@ -75,7 +456,23 @@
                         <div class="col-md-4 form-group">
                             <input type="text" class="form-control" name="postal_code" placeholder="Postal Code" required>
                         </div>
-                        
+                        <!-- Dropdown personalizado para países -->
+                        <div class="col-md-12 form-group">
+                            <div class="custom-dropdown">
+                                <button type="button" class="dropdown-toggle" onclick="toggleDropdown()">
+                                    <span id="selectedCountry">Choose your country</span>
+                                </button>
+                                <input type="hidden" name="country" id="countryInput" required value="">
+                                <div class="dropdown-menu" id="countryDropdown">
+                                    {% for code, name in countries %}
+                                        <div class="dropdown-item" onclick="selectCountry('{{ code }}', '{{ name }}')">
+                                            {{ name }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                     
                         <!-- Payment Method -->
                         <div class="col-md-12 form-group">
                             <h3>Payment Method</h3>
@@ -105,17 +502,23 @@
                                         </div>
                                     </button>
 
-                                    <!-- Apple Pay -->
+                                    <!-- Apple Pay
                                     <button type="button" class="payment-method-btn" data-method="apple_pay">
                                         <div class="payment-method-content">
                                             <img src="{% static 'core/img/payment/apple-pay.png' %}" alt="Apple Pay">
                                             <span>Apple Pay</span>
                                         </div>
-                                    </button>
+                                    </button> -->
                                 </div>
 
                                 <!-- Hidden input to store selected payment method -->
                                 <input type="hidden" name="payment_method" id="selected_payment_method" value="credit_card">
+                            </div>
+
+                            <!-- Stripe Card Element -->
+                            <div id="card-element-container" class="mt-3">
+                                <div id="card-element"></div>
+                                <div id="card-errors" class="text-danger mt-2"></div>
                             </div>
                         </div>
                         
