@@ -1,1 +1,1 @@
-OPTIONS = {'sslmode': 'require'}  # Para conexões SSL
+OPTIONS = {'sslmode': 'require'}  # Para conexões SSL 
