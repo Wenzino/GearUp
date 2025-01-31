@@ -3,3 +3,4 @@ staticfiles
 frontend
 .env
 .git.bak
+media

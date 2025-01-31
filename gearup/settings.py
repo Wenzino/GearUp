@@ -28,9 +28,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#)4-4x6flxps)jzh9#$%dh=07sj7#82vkex1z@7^d2@n3brzvp'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# Development:
+# DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+# Production:
 DEBUG = False
 
-ALLOWED_HOSTS = ["gearup-0tx7.onrender.com", 'gearup-staging.onrender.com']
+ALLOWED_HOSTS = ["gearup-0tx7.onrender.com", 'gearup-staging.onrender.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -88,7 +91,7 @@ WSGI_APPLICATION = 'gearup.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://postgres:milapbxtdbUkPkwlOCYTyLdCpwyXlUFu@viaduct.proxy.rlwy.net:46440/railway',
+        default='postgresql://wen:qYIdSgq8UkNmEFTQC5oc1twZ6cWWLNiz@dpg-cueki4rv2p9s73fl2q60-a/gearup_7w4h',
         conn_max_age=1000
     )
 }
@@ -151,15 +154,17 @@ USE_TZ = True
 import mimetypes
 mimetypes.add_type("text/css", ".css", True)
 
+STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'core/static/core'),
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = '/static/'
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    # Configuração essencial do WhiteNoise
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Configuração essencial do WhiteNoise
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
