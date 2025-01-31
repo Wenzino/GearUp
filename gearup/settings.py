@@ -91,8 +91,9 @@ WSGI_APPLICATION = 'gearup.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://wen:qYIdSgq8UkNmEFTQC5oc1twZ6cWWLNiz@dpg-cueki4rv2p9s73fl2q60-a/gearup_7w4h',
-        conn_max_age=1000
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=1000,
+        ssl_require=True
     )
 }
 
