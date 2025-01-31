@@ -10,3 +10,6 @@ python manage.py collectstatic --no-input
 
 # Apply any outstanding database migrations
 python manage.py migrate
+
+# Comando necessário para o Render:
+gunicorn gearup.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
