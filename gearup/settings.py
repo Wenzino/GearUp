@@ -195,5 +195,5 @@ PAYPAL_MODE = 'sandbox'  # Use 'live' para produção
 GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
 
 # Adicione no final do arquivo
-PORT = os.environ.get('PORT', 8000)
+PORT = os.environ.get('PORT')
 
