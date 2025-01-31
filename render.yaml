@@ -1,0 +1,25 @@
+databases:
+  - name: gearup  # Nome do seu banco de dados no Render
+    databaseName: gearup  # Nome do database dentro do PostgreSQL
+    plan: free  # Free, Starter ou Premium
+    user: wen  # Usuário administrador
+
+services:
+  - type: web
+    plan: starter
+    name: GearUp
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: gunicorn gearup.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 180
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gearup  # Deve bater com o nome do database acima
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DISABLE_COLLECTSTATIC
+        value: "0"
+    healthCheckPath: /health-check/ 
