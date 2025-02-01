@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.db.models import Avg
-from .models import Product, Banner, Feature, Brand, SectionContent, Review, Order, OrderItem
+from .models import Product, Banner, Feature, Brand, SectionContent, Review, Order, OrderItem, BillingAddress
 from decimal import Decimal
 import stripe
 from django.conf import settings
@@ -103,7 +103,14 @@ def checkout(request):
         'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
         'paypal_client_id': settings.PAYPAL_CLIENT_ID,
         'countries': countries,
-        'default_country': request.META.get('HTTP_CF_IPCOUNTRY') or None
+        'default_country': request.META.get('HTTP_CF_IPCOUNTRY') or None,
+        'default_address': {
+            'address': request.user.billing_address.address if hasattr(request.user, 'billing_address') else '',
+            'city': request.user.billing_address.city if hasattr(request.user, 'billing_address') else '',
+            'state': request.user.billing_address.state if hasattr(request.user, 'billing_address') else '',
+            'postal_code': request.user.billing_address.postal_code if hasattr(request.user, 'billing_address') else '',
+            'country': request.user.billing_address.country if hasattr(request.user, 'billing_address') else '',
+        }
     }
     
     return render(request, 'core/checkout.html', context)
@@ -156,7 +163,53 @@ def tracking(request):
 
 @login_required
 def profile_view(request):
-    return render(request, 'core/profile.html')
+    if request.method == 'POST':
+        try:
+            # Atualizar dados do usuário
+            user = request.user
+            user.first_name = request.POST.get('first_name', '')
+            user.last_name = request.POST.get('last_name', '')
+            user.email = request.POST.get('email', '')
+            user.save()
+
+            # Atualizar endereço de cobrança
+            billing_address, _ = BillingAddress.objects.get_or_create(user=user)
+            billing_address.address = request.POST.get('address', '')
+            billing_address.city = request.POST.get('city', '')
+            billing_address.state = request.POST.get('state', '')
+            billing_address.postal_code = request.POST.get('postal_code', '')
+            billing_address.country = request.POST.get('country', '')
+            billing_address.save()
+
+            # Alterar senha se os campos foram preenchidos
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+            
+            if old_password and new_password1 and new_password2:
+                if user.check_password(old_password):
+                    if new_password1 == new_password2:
+                        user.set_password(new_password1)
+                        user.save()
+                        messages.success(request, 'Senha alterada com sucesso!')
+                    else:
+                        messages.error(request, 'As novas senhas não coincidem')
+                else:
+                    messages.error(request, 'Senha atual incorreta')
+
+            messages.success(request, 'Perfil atualizado com sucesso!')
+            return redirect('core:profile')
+
+        except Exception as e:
+            messages.error(request, f'Erro ao atualizar perfil: {str(e)}')
+            return redirect('core:profile')
+
+    # Adicionar países ao contexto
+    context = {
+        'countries': countries,
+        'user': request.user
+    }
+    return render(request, 'core/profile.html', context)
 
 @login_required
 def orders_view(request):

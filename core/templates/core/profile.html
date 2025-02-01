@@ -1,8 +1,153 @@
 {% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Meu Perfil{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Meu Perfil</h2>
-    <!-- Adicione aqui o conteúdo da página de perfil -->
+<!-- Banner Area -->
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Meu Perfil</h1>
+                <nav class="d-flex align-items-center">
+                    <a href="{% url 'core:index' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+                    <a href="#">Perfil</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Área do Perfil -->
+<section class="checkout_area section_gap">
+    <div class="container">
+        <div class="billing_details">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h3>Informações Pessoais</h3>
+                    <form class="row contact_form" method="post" novalidate="novalidate">
+                        {% csrf_token %}
+                        
+                        <!-- Dados do Usuário -->
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" name="first_name" 
+                                   placeholder="Nome" value="{{ user.first_name }}" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" name="last_name"
+                                   placeholder="Sobrenome" value="{{ user.last_name }}" required>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="email" class="form-control" name="email" 
+                                   placeholder="Email" value="{{ user.email }}" required>
+                        </div>
+
+                        <h3 class="mt-4">Endereço de Cobrança</h3>
+                        
+                        <!-- Endereço -->
+                        <div class="col-md-12 form-group">
+                            <input type="text" class="form-control" name="address" 
+                                   placeholder="Endereço" value="{{ user.billing_address.address }}" required>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <input type="text" class="form-control" name="city" 
+                                   placeholder="Cidade" value="{{ user.billing_address.city }}" required>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <input type="text" class="form-control" name="state" 
+                                   placeholder="Estado" value="{{ user.billing_address.state }}" required>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <input type="text" class="form-control" name="postal_code" 
+                                   placeholder="CEP" value="{{ user.billing_address.postal_code }}" required>
+                        </div>
+                        
+                        <!-- País -->
+                        <div class="col-md-12 form-group">
+                            <div class="custom-dropdown">
+                                <button type="button" class="dropdown-toggle" onclick="toggleDropdown()">
+                                    <span id="selectedCountry">
+                                        {% if user.billing_address.country %}
+                                            {{ user.billing_address.get_country_display }}
+                                        {% else %}
+                                            Selecione seu país
+                                        {% endif %}
+                                    </span>
+                                </button>
+                                <input type="hidden" name="country" id="countryInput" 
+                                       value="{{ user.billing_address.country|default:'' }}">
+                                <div class="dropdown-menu" id="countryDropdown">
+                                    {% for code, name in countries %}
+                                        <div class="dropdown-item" onclick="selectCountry('{{ code }}', '{{ name }}')">
+                                            {{ name }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alterar Senha -->
+                        <h3 class="mt-4">Alterar Senha</h3>
+                        <div class="col-md-12 form-group">
+                            <input type="password" class="form-control" name="old_password" 
+                                   placeholder="Senha Atual">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <input type="password" class="form-control" name="new_password1" 
+                                   placeholder="Nova Senha">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <input type="password" class="form-control" name="new_password2" 
+                                   placeholder="Confirmar Nova Senha">
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                            <button type="submit" class="primary-btn">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Resumo -->
+                <div class="col-lg-4">
+                    <div class="order_box">
+                        <h2>Meus Dados</h2>
+                        <ul class="list">
+                            <li>Nome: <span>{{ user.get_full_name }}</span></li>
+                            <li>Email: <span>{{ user.email }}</span></li>
+                            <li>Último login: <span>{{ user.last_login|date:"d/m/Y H:i" }}</span></li>
+                        </ul>
+
+                        <h4 class="mt-4">Endereço Salvo</h4>
+                        <ul class="list">
+                            {% if user.billing_address %}
+                            <li>{{ user.billing_address.address }}</li>
+                            <li>{{ user.billing_address.city }}/{{ user.billing_address.state }}</li>
+                            <li>CEP: {{ user.billing_address.postal_code }}</li>
+                            <li>{{ user.billing_address.get_country_display }}</li>
+                            {% else %}
+                            <li>Nenhum endereço cadastrado</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% include 'core/checkout.html' with script_override=True %}
+
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
 </div>
+{% endif %}
 {% endblock %}
