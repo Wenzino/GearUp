@@ -1,8 +1,87 @@
 {% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Meus Pedidos{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Meus Pedidos</h2>
-    <!-- Adicione aqui o conteúdo da página de pedidos -->
-</div>
+<!-- Banner Area -->
+<section class="banner-area organic-breadcrumb">
+    <div class="container">
+        <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+            <div class="col-first">
+                <h1>Meus Pedidos</h1>
+                <nav class="d-flex align-items-center">
+                    <a href="{% url 'core:index' %}">Home<span class="lnr lnr-arrow-right"></span></a>
+                    <a href="#">Pedidos</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Área de Pedidos -->
+<section class="cart_area">
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive">
+                {% if orders %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Pedido #</th>
+                            <th scope="col">Data</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Itens</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <h5>#{{ order.id }}</h5>
+                            </td>
+                            <td>
+                                {{ order.created_at|date:"d/m/Y H:i" }}
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if order.status == 'delivered' %}badge-success
+                                    {% elif order.status == 'cancelled' %}badge-danger
+                                    {% else %}badge-warning{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <ul class="list-unstyled">
+                                    {% for item in order.items.all %}
+                                    <li>{{ item.quantity }}x {{ item.product.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>
+                                <h5>${{ order.total }}</h5>
+                            </td>
+                            <td>
+                                <a href="{% url 'core:tracking' %}?order_id={{ order.id }}" 
+                                   class="btn btn-info btn-sm"
+                                   {% if not order.tracking_number %}disabled{% endif %}>
+                                    <i class="lnr lnr-map-marker"></i> Rastrear
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center py-5">
+                    <h3>Você ainda não fez nenhum pedido</h3>
+                    <a href="{% url 'core:index' %}" class="primary-btn mt-3">Continuar Comprando</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %} 

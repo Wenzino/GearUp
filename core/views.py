@@ -15,7 +15,7 @@ import json
 from django.urls import reverse
 from django.utils.translation import get_language_from_request
 from django_countries import countries
-import requests
+
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -160,7 +160,8 @@ def profile_view(request):
 
 @login_required
 def orders_view(request):
-    return render(request, 'core/orders.html')
+    orders = Order.objects.filter(user=request.user).prefetch_related('items')
+    return render(request, 'core/orders.html', {'orders': orders})
 
 @login_required
 def logout_view(request):

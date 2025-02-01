@@ -6225,3 +6225,12 @@ label {
         right: -3px;
     }
 }
+
+.badge {
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+    font-size: 0.9em;
+}
+.badge-success { background: #28a745; color: white; }
+.badge-warning { background: #ffc107; color: black; }
+.badge-danger { background: #dc3545; color: white; }
