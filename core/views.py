@@ -15,6 +15,7 @@ import json
 from django.urls import reverse
 from django.utils.translation import get_language_from_request
 from django_countries import countries
+from django.db.utils import IntegrityError
 
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -165,6 +166,20 @@ def tracking(request):
 def profile_view(request):
     if request.method == 'POST':
         try:
+            # Validação dos campos obrigatórios
+            required_fields = {
+                'address': 'Endereço',
+                'city': 'Cidade',
+                'state': 'Estado',
+                'postal_code': 'CEP',
+                'country': 'País'
+            }
+            
+            missing_fields = [name for field, name in required_fields.items() if not request.POST.get(field)]
+            if missing_fields:
+                messages.error(request, f'Campos obrigatórios faltando: {", ".join(missing_fields)}')
+                return redirect('core:profile')
+
             # Atualizar dados do usuário
             user = request.user
             user.first_name = request.POST.get('first_name', '')
@@ -200,6 +215,9 @@ def profile_view(request):
             messages.success(request, 'Perfil atualizado com sucesso!')
             return redirect('core:profile')
 
+        except IntegrityError as e:
+            messages.error(request, 'Erro ao salvar endereço. Verifique os dados informados.')
+            return redirect('core:profile')
         except Exception as e:
             messages.error(request, f'Erro ao atualizar perfil: {str(e)}')
             return redirect('core:profile')

@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-#)4-4x6flxps)jzh9#$%dh=07sj7#82vkex1z@7^d2@n3brzvp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["gearup-0tx7.onrender.com", 'gearup-staging.onrender.com']
+ALLOWED_HOSTS = ["gearup-0tx7.onrender.com", 'gearup-staging.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -123,16 +123,6 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_OAUTH2_SECRET')
 
-
-# Configurações do Facebook
-SOCIAL_AUTH_FACEBOOK_KEY = 'sua_chave_facebook'
-SOCIAL_AUTH_FACEBOOK_SECRET = 'seu_secret_facebook'
-
-# Configurações da Apple
-SOCIAL_AUTH_APPLE_ID_CLIENT = 'sua_chave_apple'
-SOCIAL_AUTH_APPLE_ID_TEAM = 'seu_team_id'
-SOCIAL_AUTH_APPLE_ID_KEY = 'sua_key_id'
-SOCIAL_AUTH_APPLE_ID_SECRET = 'seu_secret_apple'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
