@@ -1,4 +1,5 @@
 {% load static %}
+<link rel="stylesheet" href="{% static 'core/css/custom.css' %}" />
 <div class="collapse navbar-collapse offset" id="navbarSupportedContent">
   <ul class="nav navbar-nav menu_nav ml-auto">
     <li class="nav-item">
@@ -47,10 +48,17 @@
           {% endif %}
         </a>
       </li>
-      <li class="nav-item">
-        <button class="search">
-          <span class="lnr lnr-magnifier" id="search"></span>
-        </button>
+      <li class="nav-item search-container">
+        <div class="search-wrapper">
+          <form action="{% url 'core:search' %}" method="GET" class="search-form">
+            <input type="text" name="q" class="search-input" placeholder="Pesquisar produtos..." 
+                   autocomplete="off">
+            <button type="submit" class="search-btn">
+              <span class="lnr lnr-magnifier"></span>
+            </button>
+          </form>
+          <div class="autocomplete-results"></div>
+        </div>
       </li>
     </ul>
   </ul>
