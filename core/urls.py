@@ -28,5 +28,6 @@ urlpatterns = [
     path('process-payment/', views.process_payment, name='process_payment'),
     path('checkout/success/', views.payment_success, name='payment_success'),
     path('checkout/failed/', views.payment_failed, name='payment_failed'),
+    path('search/', views.search_view, name='search'),
 ] 
 

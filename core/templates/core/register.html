@@ -47,29 +47,51 @@
                             {% endfor %}
                         {% endif %}
 
-                        <div class="col-md-12 form-group">
-                            <input type="text" class="form-control" id="name" name="name" placeholder="Nome completo" required>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Primeiro nome</label>
+                            <input type="text" class="form-control" name="first_name" required>
                         </div>
-                        <div class="col-md-12 form-group">
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Sobrenome</label>
+                            <input type="text" class="form-control" name="last_name" required>
                         </div>
-                        <div class="col-md-12 form-group">
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Nome de usuário" required>
+
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
                         </div>
-                        <div class="col-md-12 form-group">
-                            <input type="password" class="form-control" id="password1" name="password1" placeholder="Senha" required>
+
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Senha</label>
+                            <input type="password" class="form-control" name="password1" required>
                         </div>
-                        <div class="col-md-12 form-group">
-                            <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirmar senha" required>
+
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label">Confirmar senha</label>
+                            <input type="password" class="form-control" name="password2" required>
                         </div>
-                        <div class="col-md-12 form-group">
-                            <div class="creat_account">
-                                <input type="checkbox" id="terms" name="terms" required>
-                                <label for="terms">Li e aceito os termos e condições</label>
+
+                        <div class="col-md-12 mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    Concordo com os <a href="#" class="text-primary">Termos de Serviço</a> e 
+                                    <a href="#" class="text-primary">Política de Privacidade</a>
+                                </label>
                             </div>
                         </div>
-                        <div class="col-md-12 form-group">
-                            <button type="submit" value="submit" class="primary-btn">Registrar</button>
+
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary w-100 py-2">Criar conta</button>
+                        </div>
+
+                        <div class="col-md-12 mt-4">
+                            <div class="text-center text-muted">Ou cadastre-se com</div>
+                            <a href="{% url 'social:begin' 'google-oauth2' %}" class="social-btn google-btn mt-2">
+                                <!-- SVG do Google igual ao login -->
+                                Continuar com Google
+                            </a>
                         </div>
                     </form>
                 </div>

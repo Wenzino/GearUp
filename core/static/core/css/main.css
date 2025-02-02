@@ -1131,8 +1131,7 @@ h1, h2, h3, h4, h5, h6 {
       .header_area .navbar .nav .nav-item:last-child {
         margin-right: 0px; }
     @media (min-width: 991px) {
-      .header_area .navbar .nav.navbar-nav.navbar-right {
-        display: -webkit-inline-box; } }
+     }
     .header_area .navbar .nav.navbar-nav.navbar-right li {
       margin-left: 25px;
       margin-right: 0px; }
@@ -1146,7 +1145,7 @@ h1, h2, h3, h4, h5, h6 {
             display: none; } }
       .header_area .navbar .nav.navbar-nav.navbar-right li span {
         color: #222222;
-        line-height: 80px;
+        line-height: 10px;
         font-weight: 500; }
     .header_area .navbar .nav.navbar-nav.navbar-right .search {
       background: transparent;
@@ -1341,7 +1340,8 @@ h1, h2, h3, h4, h5, h6 {
   background: -webkit-linear-gradient(45deg, #f6463d 0%, #f6398d 45%, #f52cdc 100%);
   background: -ms-linear-gradient(45deg, #f6463d 0%, #f6398d 45%, #f52cdc 100%);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent; }
+  -webkit-text-fill-color: transparent; 
+}
 
 /* start features area css
 ============================================================================================ */
