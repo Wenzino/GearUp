@@ -28,9 +28,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#)4-4x6flxps)jzh9#$%dh=07sj7#82vkex1z@7^d2@n3brzvp'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Development:
+# DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+# Production:
+DEBUG = False
 
-ALLOWED_HOSTS = ["gearup-0tx7.onrender.com", 'gearup-staging.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ["gearup-0tx7.onrender.com", 'gearup-staging.onrender.com']
 
 
 # Application definition
@@ -49,8 +52,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-  
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -88,8 +91,9 @@ WSGI_APPLICATION = 'gearup.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://postgres:milapbxtdbUkPkwlOCYTyLdCpwyXlUFu@viaduct.proxy.rlwy.net:46440/railway',
-        conn_max_age=1000
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=1000,
+        ssl_require=True
     )
 }
 
@@ -140,17 +144,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 import mimetypes
 mimetypes.add_type("text/css", ".css", True)
+
 STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'core/static/')
+    os.path.join(BASE_DIR, 'core/static/core'),
 ]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    # Configuração essencial do WhiteNoise
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -177,4 +183,7 @@ PAYPAL_MODE = 'sandbox'  # Use 'live' para produção
 
 # Google Maps API Key
 GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
+
+# Adicione no final do arquivo
+PORT = os.environ.get('PORT')
 
