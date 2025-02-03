@@ -6,7 +6,7 @@
             <div class="col-lg-3 col-md-6 col-sm-6">
                 <div class="single-footer-widget">
                     <h6>Sobre Nós</h6>
-                    <p>
+                    <p style="color: white;">
                         Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore dolore
                         magna aliqua.
                     </p>
@@ -15,7 +15,7 @@
             <div class="col-lg-4 col-md-6 col-sm-6">
                 <div class="single-footer-widget">
                     <h6>Newsletter</h6>
-                    <p>Fique por dentro das novidades</p>
+                    <p style="color: white;">Fique por dentro das novidades</p>
                     <div id="mc_embed_signup">
                         <form target="_blank" novalidate="true" action="#" method="get" class="form-inline">
                             <div class="d-flex flex-row">
@@ -32,7 +32,7 @@
             </div>
             <div class="col-lg-3 col-md-6 col-sm-6">
                 <div class="single-footer-widget mail-chimp">
-                    <h6 class="mb-20">Feed do Instagram</h6>
+                    <h6 class="mb-20" style="color: white;">Feed do Instagram</h6>
                     <ul class="instafeed d-flex flex-wrap">
                         {% for i in '12345678'|make_list %}
                         <li><img src="{% static 'img/i'|add:i|add:'.jpg' %}" alt="Instagram image {{ i }}"></li>
@@ -43,7 +43,7 @@
             <div class="col-lg-2 col-md-6 col-sm-6">
                 <div class="single-footer-widget">
                     <h6>Siga-nos</h6>
-                    <p>Nossas redes sociais</p>
+                    <p style="color: white;">Nossas redes sociais</p>
                     <div class="footer-social d-flex align-items-center">
                         <a href="#"><i class="fa fa-facebook"></i></a>
                         <a href="#"><i class="fa fa-twitter"></i></a>
@@ -54,7 +54,7 @@
             </div>
         </div>
         <div class="footer-bottom d-flex justify-content-center align-items-center flex-wrap">
-            <p class="footer-text m-0">
+            <p class="footer-text m-0" style="color: white;">
                 Copyright &copy;{% now "Y" %} Todos os direitos reservados
             </p>
         </div>
