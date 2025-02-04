@@ -107,7 +107,12 @@ class Banner(models.Model):
         return self.title
 
 class Feature(models.Model):
-    image = CloudinaryField('image', folder='features')
+    image = CloudinaryField(
+        'image', 
+        folder='features',
+        null=True,  
+        blank=True
+    )
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -117,7 +122,12 @@ class Feature(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(max_length=100)
-    image = CloudinaryField('image', folder='brands')
+    image = CloudinaryField(
+        'image', 
+        folder='brands',
+        null=True,  # Permite NULL no banco
+        blank=True  # Permite campo vazio no admin
+    )
     url = models.URLField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
