@@ -192,3 +192,15 @@ GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
 
 # Adicione no final do arquivo
 PORT = os.environ.get('PORT')
+
+# Teste de conexão com Cloudinary
+try:
+    import cloudinary
+    cloudinary.config( 
+        cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        api_key = os.environ.get('CLOUDINARY_API_KEY'),
+        api_secret = os.environ.get('CLOUDINARY_API_SECRET')
+    )
+    print("Cloudinary configurado com sucesso!")
+except Exception as e:
+    print(f"Erro Cloudinary: {str(e)}")
