@@ -194,3 +194,7 @@ class BillingAddress(models.Model):
     
     def get_country_display(self):
         return dict(countries).get(self.country, '')
+
+    class Meta:
+        managed = True  # Garante que o Django gerencia a tabela
+        db_table = 'core_billingaddress'  # Nome explícito da tabela

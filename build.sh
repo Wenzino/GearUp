@@ -12,4 +12,4 @@ python manage.py collectstatic --no-input
 python manage.py makemigrations
 
 # Apply any outstanding database migrations
-python manage.py migrate
+python manage.py migrate --fake core 0002_remove_brand_logo_remove_feature_icon_brand_image_and_more
