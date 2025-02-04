@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 from django_countries import countries
+from cloudinary.models import CloudinaryField
 
 # Product
 class Product(models.Model):
@@ -10,7 +11,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     old_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock_quantity = models.PositiveIntegerField(default = 0)
-    image = models.ImageField(upload_to='products/')
+    image = CloudinaryField('image', folder='products')
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=True, blank=True)
     specifications = models.TextField(blank=True)  # Para as especificações do produto
     created_at = models.DateTimeField(auto_now_add=True)
@@ -97,7 +98,7 @@ class Payment(models.Model):
 class Banner(models.Model):
     title = models.CharField(max_length=255)
     subtitle = models.TextField()
-    image = models.ImageField(upload_to='banners/')
+    image = CloudinaryField('image', folder='banners')
     button_text = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
@@ -106,7 +107,7 @@ class Banner(models.Model):
         return self.title
 
 class Feature(models.Model):
-    icon = models.ImageField(upload_to='features/')
+    image = CloudinaryField('image', folder='features')
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -116,7 +117,7 @@ class Feature(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(max_length=100)
-    logo = models.ImageField(upload_to='brands/')
+    image = CloudinaryField('image', folder='brands')
     url = models.URLField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

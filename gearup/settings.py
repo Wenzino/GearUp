@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'core',
     'social_django',
     'django_countries',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -149,7 +151,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 import mimetypes
@@ -178,10 +180,6 @@ LOGIN_REDIRECT_URL = 'core:index'
 LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL = 'core:index'
 
-# Configurações de mídia
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 # Stripe settings
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
@@ -197,3 +195,10 @@ GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
 # Adicione no final do arquivo
 PORT = os.environ.get('PORT')
 
+# Adicione no settings.py
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET')
+}

@@ -4,10 +4,12 @@ certifi==2024.12.14
 cffi==1.17.1
 charset-normalizer==3.4.1
 click==8.1.8
+cloudinary==1.42.1
 cryptography==44.0.0
 defusedxml==0.8.0rc2
 dj-database-url==2.3.0
 Django==5.1.4
+django-cloudinary-storage==0.3.0
 django-countries==7.5.1
 gunicorn==23.0.0
 h11==0.14.0
